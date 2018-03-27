@@ -1,0 +1,13 @@
+{
+  "name": "rn-pdf-reader-js",
+  "version": "1.0.0",
+  "description": "pdf reader full js",
+  "main": "index.js",
+  "author": "Xavier Carpentier <contact@xaviercarpentier.com> (http://xaviercarpentier.com/)",
+  "license": "MIT",
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  }
+}

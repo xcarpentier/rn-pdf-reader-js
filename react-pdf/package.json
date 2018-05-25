@@ -1,0 +1,34 @@
+{
+  "name": "react-pdf",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "./node_modules/.bin/webpack-cli",
+    "dev": "./node_modules/.bin/webpack-dev-server"
+  },
+  "dependencies": {
+    "react": "^16.3.0",
+    "react-dom": "^16.3.0",
+    "react-pdf": "latest"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.2.2",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "copy-webpack-plugin": "^4.3.1",
+    "css-loader": "^0.28.11",
+    "file-loader": "^1.1.11",
+    "less": "^3.0.1",
+    "less-loader": "^4.1.0",
+    "style-loader": "^0.20.3",
+    "url-loader": "^1.0.1",
+    "webpack": "4.8.3",
+    "webpack-cli": "2.1.4",
+    "webpack-dev-server": "3.1.4"
+  }
+}

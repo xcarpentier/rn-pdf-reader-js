@@ -5,6 +5,9 @@
   "main": "index.js",
   "author": "Xavier Carpentier <contact@xaviercarpentier.com> (http://xaviercarpentier.com/)",
   "license": "MIT",
+  "script": {
+    "bundle": "./scripts/gen_bundle_string.js"
+  },
   "peerDependencies": {
     "expo": "*",
     "react": "*",

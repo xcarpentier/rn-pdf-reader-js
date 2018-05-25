@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "rn-pdf-reader-example",
+    "description": "This project is really great.",
+    "slug": "rn-pdf-reader-example",
+    "privacy": "public",
+    "sdkVersion": "27.0.0",
+    "platforms": ["ios", "android"],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "packagerOpts": {
+      "config": "./rn-cli.config.js",
+      "projectRoots": ""
+    }
+  }
+}

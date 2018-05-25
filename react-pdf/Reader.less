@@ -1,0 +1,38 @@
+body {
+  margin: 0;
+  background-color: rgb(82, 86, 89);
+  color: #fff;
+  font-family: Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.Reader {
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &__document {
+
+      .react-pdf {
+        &__Document {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        &__Page {
+          max-width: calc(~"100% - 0.5em");
+          box-shadow: 0 0 8px rgba(0, 0, 0, .5);
+          margin: 0.1em;
+
+          canvas {
+            max-width: 100%;
+            height: auto !important;
+          }
+        }
+      }
+    }
+  }
+}

@@ -15,6 +15,9 @@ module.exports = {
     return [...dependencies, ...peerDependencies];
   },
   getBlacklistRE() {
-    return blacklist([glob(`${path.resolve(__dirname, '..')}/node_modules/*`)]);
+    return blacklist([
+      glob(`${path.resolve(__dirname, '..')}/node_modules/*`),
+      glob(`${path.resolve(__dirname, '..')}/react-pdf/*`)
+    ]);
   },
 };

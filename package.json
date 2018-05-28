@@ -5,12 +5,16 @@
   "main": "index.js",
   "author": "Xavier Carpentier <contact@xaviercarpentier.com> (http://xaviercarpentier.com/)",
   "license": "MIT",
-  "script": {
+  "scripts": {
     "bundle": "./scripts/gen_bundle_string.js"
   },
   "peerDependencies": {
     "expo": "*",
     "react": "*",
     "react-native": "*"
+  },
+  "dependencies": {
+    "buffer": "5.1.0",
+    "js-base64": "2.4.5"
   }
 }

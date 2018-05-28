@@ -1,25 +1,16 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import { Document, Page } from 'react-pdf';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-
 import './Reader.less';
 
-const options = {
-  cMapUrl: 'cmaps/',
-  cMapPacked: true,
-};
-
 class Reader extends Component {
-  state = {
-    numPages: null,
-    ready: false
-  }
+  state = { numPages: null }
 
   onDocumentLoadSuccess = ({ numPages }) =>
-    this.setState({
-      numPages
-    })
+    this.setState({ numPages })
+
+  onError = () => alert('Error while loading document! ' + error.message)
+  onSuccess = (t) => () => alert(t)
 
   render() {
     const { ready, numPages } = this.state;
@@ -29,9 +20,13 @@ class Reader extends Component {
         <div className="Reader__container">
           <div className="Reader__container__document">
             <Document
-              file={file}
+              file={{ data: atob(file.split(',')[1])}}
               onLoadSuccess={this.onDocumentLoadSuccess}
-              options={options}
+              onLoadError={this.onError}
+              onSourceError={this.onError}
+              options={{
+                nativeImageDecoderSupport: 'none',
+              }}
             >
               {
                 Array.from(
@@ -40,6 +35,9 @@ class Reader extends Component {
                     <Page
                       key={`page_${index + 1}`}
                       pageNumber={index + 1}
+                      onLoadError={this.onError}
+                      onRenderError={this.onError}
+                      onGetTextError={this.onError}
                     />
                   ),
                 )
@@ -51,8 +49,12 @@ class Reader extends Component {
     );
   }
 }
-
+PDFJS.disableWebGL = true;
+PDFJS.disableWorker = true;
 const tagData = document.getElementById('file')
 const file = tagData.getAttribute('data-file')
-const type = tagData.getAttribute('data-type')
-render(<Reader file={file} type={type}/>, document.getElementById('react-container'));
+try {
+  render(<Reader file={file} />, document.getElementById('react-container'));
+} catch (error) {
+  alert(error.message)
+}

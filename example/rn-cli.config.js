@@ -1,11 +1,10 @@
-
 const path = require('path');
 const blacklist = require('metro/src/blacklist');
 const glob = require('glob-to-regexp');
-const pak = require('../package.json');
+const pkg = require('../package.json');
 
-const dependencies = Object.keys(pak.dependencies || {});
-const peerDependencies = Object.keys(pak.peerDependencies || {});
+const dependencies = Object.keys(pkg.dependencies || {});
+const peerDependencies = Object.keys(pkg.peerDependencies || {});
 
 module.exports = {
   getProjectRoots() {

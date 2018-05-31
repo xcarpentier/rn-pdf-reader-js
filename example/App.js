@@ -7,7 +7,7 @@ export default class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <PdfReader url="http://gahp.net/wp-content/uploads/2017/09/sample.pdf" />
+        <PdfReader file="http://gahp.net/wp-content/uploads/2017/09/sample.pdf" />
       </View>
     );
   }

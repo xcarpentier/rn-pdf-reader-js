@@ -6,6 +6,12 @@ import './Reader.less';
 class Reader extends Component {
   state = { numPages: null }
 
+  componentWillMount() {
+    document.body.style.height = window.innerHeight + 'px'
+
+    PDFJS.disableWorker = true;
+  }
+
   onDocumentLoadSuccess = ({ numPages }) =>
     this.setState({ numPages })
 
@@ -49,12 +55,7 @@ class Reader extends Component {
     );
   }
 }
-PDFJS.disableWebGL = true;
-PDFJS.disableWorker = true;
+
 const tagData = document.getElementById('file')
 const file = tagData.getAttribute('data-file')
-try {
-  render(<Reader file={file} />, document.getElementById('react-container'));
-} catch (error) {
-  alert(error.message)
-}
+render(<Reader file={file} />, document.getElementById('react-container'));

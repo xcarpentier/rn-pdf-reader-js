@@ -96,7 +96,7 @@ class PdfReader extends Component {
       )
     }
 
-    if (ready) {
+    if (ready && android) {
       return (
         <WebView
           style={{ flex: 1, backgroundColor: 'rgb(82, 86, 89)' }}
@@ -104,6 +104,7 @@ class PdfReader extends Component {
         />
       )
     }
+
     return <Loader />
   }
 }

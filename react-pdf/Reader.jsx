@@ -8,7 +8,6 @@ class Reader extends Component {
 
   componentWillMount() {
     document.body.style.height = window.innerHeight + 'px'
-
     PDFJS.disableWorker = true;
   }
 

@@ -59,25 +59,31 @@ class PdfReader extends Component {
   state = { ready: false }
 
   async init() {
-    const { file } = this.props
-    const ios = Platform.OS === 'ios'
-    const android = Platform.OS === 'android'
+    try {
+      const { file } = this.props
+      const ios = Platform.OS === 'ios'
+      const android = Platform.OS === 'android'
 
-    this.setState({ ios, android })
-    if(file.startsWith('http')) {
-      const data = await fetchPdfAsync(file)
-      this.setState({ data })
-    } else if (file.startsWith('data')) {
-      this.setState({ data: file })
-      if (android) {
-        await writeWebViewReaderFileAsync(file)
+      this.setState({ ios, android })
+      let data = undefined
+      if(file.startsWith('http')) {
+        data = await fetchPdfAsync(file)
+      } else if (file.startsWith('data')) {
+        date = file
+      } else {
+        alert('file props is required')
+        return;
       }
-    } else {
-      alert('file props is required')
-      return;
+
+      if (android) {
+        await writeWebViewReaderFileAsync(data)
+      }
+
+      this.setState({ ready: true, data })
+    } catch (error) {
+      alert('Sorry, an error occurred')
     }
 
-    this.setState({ ready: true })
   }
 
   componentWillMount() {
@@ -87,7 +93,7 @@ class PdfReader extends Component {
   render() {
     const { ready, data, ios, android, html } = this.state
 
-    if (ready && ios) {
+    if (ready && data && ios) {
       return (
         <WebView
           style={{ flex: 1, backgroundColor: 'rgb(82, 86, 89)' }}
@@ -96,7 +102,7 @@ class PdfReader extends Component {
       )
     }
 
-    if (ready && android) {
+    if (ready && data && android) {
       return (
         <WebView
           style={{ flex: 1, backgroundColor: 'rgb(82, 86, 89)' }}

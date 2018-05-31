@@ -19,3 +19,7 @@ Use it with Expo
 
 ### What rn-pdf-reader-js use
 * react-pdf
+* WebView
+* Expo Document api
+* Base64
+* ...

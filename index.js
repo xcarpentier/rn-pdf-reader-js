@@ -66,7 +66,7 @@ class PdfReader extends Component {
 
       this.setState({ ios, android })
       let data = undefined
-      if(file.startsWith('http')) {
+      if(file.startsWith('http') || file.startsWith('file')) {
         data = await fetchPdfAsync(file)
       } else if (file.startsWith('data')) {
         data = file

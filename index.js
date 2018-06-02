@@ -69,7 +69,7 @@ class PdfReader extends Component {
       if(file.startsWith('http')) {
         data = await fetchPdfAsync(file)
       } else if (file.startsWith('data')) {
-        date = file
+        data = file
       } else {
         alert('file props is required')
         return;

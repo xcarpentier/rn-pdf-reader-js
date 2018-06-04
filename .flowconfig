@@ -1,0 +1,12 @@
+[ignore]
+expo
+react-native
+[include]
+
+[libs]
+
+[lints]
+
+[options]
+
+[strict]

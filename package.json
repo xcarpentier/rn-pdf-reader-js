@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "pdf reader full js",
   "main": "index.js",
-  "author": "Xavier Carpentier <contact@xaviercarpentier.com> (http://xaviercarpentier.com/)",
+  "author": "Xavier Carpentier <xcapetir@gmail.com> (https://xaviercarpentier.com/)",
   "license": "MIT",
   "scripts": {
     "bundle": "./scripts/gen_bundle_string.js"
@@ -16,5 +16,8 @@
   "dependencies": {
     "buffer": "5.1.0",
     "js-base64": "2.4.5"
+  },
+  "devDependencies": {
+    "flow-bin": "0.73.0"
   }
 }

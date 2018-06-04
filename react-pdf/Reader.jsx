@@ -7,15 +7,13 @@ class Reader extends Component {
   state = { numPages: null }
 
   componentWillMount() {
-    document.body.style.height = window.innerHeight + 'px'
-    PDFJS.disableWorker = true;
-  }
+    PDFJS.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.305/pdf.worker.min.js';
+   }
 
   onDocumentLoadSuccess = ({ numPages }) =>
     this.setState({ numPages })
 
-  onError = () => alert('Error while loading document! ' + error.message)
-  onSuccess = (t) => () => alert(t)
+  onError = error => window.alert('Error while loading document! \n' + error.message)
 
   render() {
     const { ready, numPages } = this.state;

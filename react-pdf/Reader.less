@@ -3,7 +3,6 @@ body {
   background-color: rgb(82, 86, 89);
   color: #fff;
   font-family: Helvetica,Arial,sans-serif;
-  -webkit-font-smoothing: antialiased;
 }
 
 .Reader {
@@ -12,8 +11,16 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
+    overflow-x: hidden;
+
+    &__load {
+      margin-top: 1em;
+      color: white;
+    }
 
     &__document {
+      margin: 0;
 
       .react-pdf {
         &__Document {
@@ -23,13 +30,16 @@ body {
         }
 
         &__Page {
-          max-width: calc(~"100% - 0.5em");
-          box-shadow: 0 0 8px rgba(0, 0, 0, .5);
+          max-width: calc(100% - 0.5em);
           margin: 0.1em;
 
           canvas {
             max-width: 100%;
             height: auto !important;
+          }
+
+          &__annotations {
+            display: none;
           }
         }
       }

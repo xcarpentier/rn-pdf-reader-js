@@ -12,24 +12,26 @@
 </a>
 </p>
 <p align="center">
-💥DEMO: https://exp.host/@dev-team-e-medicus/rn-pdf-reader-example
+  <a href="https://exp.host/@dev-team-e-medicus/rn-pdf-reader-example">💥 DEMO 💥</a>
 </p>
 
-## Read PDF just with JS
+## Read a PDF just with JS (no native libs needed)
 
 ## Example
 
 ```javascript
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import PdfReader from 'rn-pdf-reader-js';
+import PDFReader from 'rn-pdf-reader-js';
 import { Constants } from 'expo';
 
 export default class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <PdfReader file="http://gahp.net/wp-content/uploads/2017/09/sample.pdf" />
+        <PDFReader
+          source={{ uri: "http://gahp.net/wp-content/uploads/2017/09/sample.pdf" }}
+        />
       </View>
     );
   }
@@ -44,12 +46,23 @@ const styles = StyleSheet.create({
 });
 ```
 
+## Props
+* source: `Object`
+  * uri?: `string` - can be local or served on the web (ie. start withs `https://` or `file://`)
+  * base64?: `string` - should start with `data`
+
 ### Requirements
-Use it with Expo
+* Use it into Expo app (from expo client, Standalone app or ExpoKit app).
+* Because we need to have access to `Expo.FileSystem`
+
+### Features
+* **For Android, use react-pdf / pdfjs in the webview**
+* For iOS devices, display file directly to the WebView
 
 ### What rn-pdf-reader-js use
-* react-pdf
+
+* react-pdf (pdf.js)
 * WebView
-* Expo Document api
+* Expo FileSystem API
 * Base64
-* ...
+

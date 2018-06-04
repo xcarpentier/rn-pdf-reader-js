@@ -7,7 +7,9 @@
    <br/>
    <br/>
    <br/>
+   <a href="https://www.npmjs.com/package/rn-pdf-reader-js"><img alt="npm version" src="https://badge.fury.io/js/rn-pdf-reader-js.svg"/>
    <a href="http://reactnative.gallery"><img src="https://img.shields.io/badge/reactnative.gallery-%F0%9F%8E%AC-green.svg"/></a>
+</a>
 </p>
 <p align="center">
 💥DEMO: https://exp.host/@dev-team-e-medicus/rn-pdf-reader-example
@@ -19,7 +21,7 @@
 
 ```javascript
 import React from 'react';
-import { StyleSheet, Text, View, WebView } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import PdfReader from 'rn-pdf-reader-js';
 import { Constants } from 'expo';
 

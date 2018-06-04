@@ -12,7 +12,7 @@
 </a>
 </p>
 <p align="center">
-  <a href="https://exp.host/@dev-team-e-medicus/rn-pdf-reader-example">💥 DEMO 💥</a>
+  <a href="https://exp.host/@xcarpentier/rn-pdf-reader-example">💥 DEMO 💥</a>
 </p>
 
 ## Read a PDF just with JS (no native libs needed)

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, WebView } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import PdfReader from 'rn-pdf-reader-js';
 import { Constants } from 'expo';
 

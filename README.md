@@ -51,15 +51,15 @@ const styles = StyleSheet.create({
   * uri?: `string` - can be local or served on the web (ie. start withs `https://` or `file://`)
   * base64?: `string` - should start with `data`
 
-### Requirements
+## Requirements
 * Use it into Expo app (from expo client, Standalone app or ExpoKit app).
 * Because we need to have access to `Expo.FileSystem`
 
-### Features
+## Features
 * **For Android, use react-pdf / pdfjs in the webview**
 * For iOS devices, display file directly to the WebView
 
-### What rn-pdf-reader-js use
+## What rn-pdf-reader-js use
 
 * react-pdf (pdf.js)
 * WebView

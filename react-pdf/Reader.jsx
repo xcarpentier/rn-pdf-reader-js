@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import { Document, Page } from 'react-pdf';
-import './Reader.less';
+import Loader from "react-md-spinner";
+import './Reader.less'
 
 class Reader extends Component {
   state = { numPages: null }
@@ -15,8 +16,29 @@ class Reader extends Component {
 
   onError = error => window.alert('Error while loading document! \n' + error.message)
 
+  componentDidMount() {
+    this._mounted = true;
+  }
+
+  componentWillUnmount() {
+    this._mounted = false;
+  }
+
+  renderLoader = () => (
+    <div style={{
+      width: window.innerWidth,
+      height: window.innerHeight,
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#fff'
+    }}>
+      <Loader />
+    </div>
+  )
+
   render() {
-    const { ready, numPages } = this.state;
+    const { numPages } = this.state;
     const { file } = this.props;
     return (
       <div className="Reader">
@@ -27,15 +49,14 @@ class Reader extends Component {
               onLoadSuccess={this.onDocumentLoadSuccess}
               onLoadError={this.onError}
               onSourceError={this.onError}
-              options={{
-                nativeImageDecoderSupport: 'none',
-              }}
+              loading={this.renderLoader()}
             >
               {
                 Array.from(
                   new Array(numPages),
                   (el, index) => (
                     <Page
+                      loading={" "}
                       key={`page_${index + 1}`}
                       pageNumber={index + 1}
                       onLoadError={this.onError}

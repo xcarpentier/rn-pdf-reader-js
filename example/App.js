@@ -8,7 +8,7 @@ export default class App extends React.Component {
     return (
       <View style={styles.container}>
         <PdfReader source={{
-          uri: "http://gahp.net/wp-content/uploads/2017/09/sample.pdf"
+          uri: "https://nbrosowsky.github.io/documents/QALMRI-example.pdf"
         }}
         />
       </View>

@@ -5,32 +5,42 @@ body {
   font-family: Helvetica,Arial,sans-serif;
 }
 
-.up-anim {
-  animation-duration: 1s;
-  animation-name: slideup;
+//
+.up-anim-enter {
+  margin-top: -200%;
 }
 
-.down-anim {
-  animation-duration: 1s;
-  animation-name: slidedown;
+.up-anim-enter.up-anim-enter-active {
+  margin-top: 0%;
+  transition: margin-top 500ms ease;
 }
 
-@keyframes slidedown {
-  from {
-    margin-bottom: 25%;
-  }
-  to {
-    margin-bottom: 0%;
-  }
+.up-anim-leave {
+  opacity: 1;
 }
 
-@keyframes slideup {
-  from {
-    margin-top: 0%;
-  }
-  to {
-    margin-top: 25%;
-  }
+.up-anim-leave.up-anim-leave-active {
+  opacity: 0;
+  transition: opacity 1ms ease;
+}
+
+//
+.down-anim-enter {
+  margin-top: 200%;
+}
+
+.down-anim-enter.down-anim-enter-active {
+  margin-top: 0%;
+  transition: margin-top 500ms ease;
+}
+
+.down-anim-leave {
+  opacity: 1;
+}
+
+.down-anim-leave.down-anim-leave-active {
+  opacity: 0;
+  transition: opacity 1ms ease;
 }
 
 .Reader {
@@ -52,7 +62,7 @@ body {
       margin: 0;
 
       .react-pdf {
-        &__Document {
+        &__Document span {
           display: flex;
           flex-direction: column;
           align-items: center;

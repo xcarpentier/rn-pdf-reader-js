@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
-import { render } from 'react-dom';
-import { Document, Page, setOptions } from 'react-pdf';
-import Loader from "react-md-spinner";
+import React, { Component } from 'react'
+import { render } from 'react-dom'
+import { Document, Page, setOptions } from 'react-pdf'
+import Loader from "react-md-spinner"
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import './Reader.less'
 
 const ReactContainer = document.querySelector('#react-container')
@@ -77,14 +78,17 @@ class Reader extends Component {
               onSourceError={this.onError}
               loading={this.renderLoader()}
             >
-              <Page
-                loading={" "}
-                dkey={`page_${currentPage}`}
-                pageNumber={currentPage}
-                onLoadError={this.onError}
-                onRenderError={this.onError}
-                onGetTextError={this.onError}
-              />
+              <ReactCSSTransitionGroup
+                transitionName={direction === 'up' ? 'up-anim' : 'down-anim'}>
+                <Page
+                  loading={" "}
+                  key={`page_${currentPage}`}
+                  pageNumber={currentPage}
+                  onLoadError={this.onError}
+                  onRenderError={this.onError}
+                  onGetTextError={this.onError}
+                />
+              </ReactCSSTransitionGroup>
             </Document>
           </div>
         </div>

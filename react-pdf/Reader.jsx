@@ -1,15 +1,26 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import { Document, Page } from 'react-pdf';
+import { Document, Page, setOptions } from 'react-pdf';
 import Loader from "react-md-spinner";
 import './Reader.less'
 
-class Reader extends Component {
-  state = { numPages: null }
+const ReactContainer = document.querySelector('#react-container')
 
-  componentWillMount() {
-    PDFJS.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.305/pdf.worker.min.js';
-   }
+setOptions({
+  workerSrc: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.305/pdf.worker.min.js',
+  disableWorker: false,
+  cMapUrl: 'https://github.com/mozilla/pdfjs-dist/raw/master/cmaps/',
+  cMapPacked: true
+});
+
+class Reader extends Component {
+  state = {
+    numPages: null,
+    currentPage: 1,
+    touchStartY: 0,
+    touchEndY: 0,
+    direction: 'down'
+  }
 
   onDocumentLoadSuccess = ({ numPages }) =>
     this.setState({ numPages })
@@ -17,11 +28,26 @@ class Reader extends Component {
   onError = error => window.alert('Error while loading document! \n' + error.message)
 
   componentDidMount() {
-    this._mounted = true;
+    ReactContainer.addEventListener('touchstart', this.onTouchStart)
+    ReactContainer.addEventListener('touchend', this.onTouchEnd)
   }
 
-  componentWillUnmount() {
-    this._mounted = false;
+  onTouchStart = event => {
+    event.preventDefault();
+    this.setState({ touchStartY: event.changedTouches[0].clientY })
+  }
+
+  onTouchEnd = event => {
+    event.preventDefault();
+    this.setState(({ currentPage, touchStartY, numPages }) => {
+      const { clientY: touchEndY } = event.changedTouches[0]
+      if (touchStartY > touchEndY && currentPage < numPages) {
+        return { currentPage: currentPage + 1, touchEndY, direction: 'down' }
+      }
+      if (touchStartY < touchEndY && currentPage > 1) {
+        return { currentPage: currentPage - 1, touchEndY, direction: 'up' }
+      }
+    })
   }
 
   renderLoader = () => (
@@ -38,7 +64,7 @@ class Reader extends Component {
   )
 
   render() {
-    const { numPages } = this.state;
+    const { numPages, currentPage, direction } = this.state;
     const { file } = this.props;
     return (
       <div className="Reader">
@@ -51,21 +77,14 @@ class Reader extends Component {
               onSourceError={this.onError}
               loading={this.renderLoader()}
             >
-              {
-                Array.from(
-                  new Array(numPages),
-                  (el, index) => (
-                    <Page
-                      loading={" "}
-                      key={`page_${index + 1}`}
-                      pageNumber={index + 1}
-                      onLoadError={this.onError}
-                      onRenderError={this.onError}
-                      onGetTextError={this.onError}
-                    />
-                  ),
-                )
-              }
+              <Page
+                loading={" "}
+                dkey={`page_${currentPage}`}
+                pageNumber={currentPage}
+                onLoadError={this.onError}
+                onRenderError={this.onError}
+                onGetTextError={this.onError}
+              />
             </Document>
           </div>
         </div>
@@ -74,6 +93,6 @@ class Reader extends Component {
   }
 }
 
-const tagData = document.getElementById('file')
+const tagData = document.querySelector('#file')
 const file = tagData.getAttribute('data-file')
-render(<Reader file={file} />, document.getElementById('react-container'));
+render(<Reader file={file} />, ReactContainer);

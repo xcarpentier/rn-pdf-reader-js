@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
 * **For Android, use react-pdf / pdfjs in the webview**
 * For iOS devices, display file directly to the WebView
 
-## What rn-pdf-reader-js use
+## What rn-pdf-reader-js use?
 
 * react-pdf (pdf.js)
 * WebView

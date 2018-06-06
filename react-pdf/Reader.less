@@ -5,6 +5,34 @@ body {
   font-family: Helvetica,Arial,sans-serif;
 }
 
+.up-anim {
+  animation-duration: 1s;
+  animation-name: slideup;
+}
+
+.down-anim {
+  animation-duration: 1s;
+  animation-name: slidedown;
+}
+
+@keyframes slidedown {
+  from {
+    margin-bottom: 25%;
+  }
+  to {
+    margin-bottom: 0%;
+  }
+}
+
+@keyframes slideup {
+  from {
+    margin-top: 0%;
+  }
+  to {
+    margin-top: 25%;
+  }
+}
+
 .Reader {
 
   &__container {
@@ -12,8 +40,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    overflow-x: hidden;
+    justify-content: center;
+    overflow: hidden;
 
     &__load {
       margin-top: 1em;
@@ -31,9 +59,7 @@ body {
         }
 
         &__Page {
-          max-width: calc(100% - 0.5em);
-          margin: 0.1em;
-          margin-bottom: 1rem;
+          max-width: calc(100% - 1em);
 
           canvas {
             max-width: 100%;

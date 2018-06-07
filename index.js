@@ -23,16 +23,14 @@ function viewerHtml(base64: string): string {
  </html>
 `
 }
-const indexHtmlPath = `${documentDirectory}index.html`
 const bundleJsPath = `${documentDirectory}bundle.js`
 
-async function writeWebViewReaderFileAsync(base64: string): Promise<*> {
-  await writeAsStringAsync(indexHtmlPath, viewerHtml(base64))
+async function writeWebViewReaderFileAsync(): Promise<*> {
+  // TODO: read info and test exist and md5
   await writeAsStringAsync(bundleJsPath, getBundle())
 }
 
 export async function removeFilesAllAsync(): Promise<*> {
-  await deleteAsync(indexHtmlPath)
   await deleteAsync(bundleJsPath)
 }
 
@@ -102,14 +100,14 @@ class PdfReader extends Component<Props, State> {
       }
 
       if (android) {
-        await writeWebViewReaderFileAsync(data)
+        await writeWebViewReaderFileAsync()
       }
 
       this.setState({ ready: !!data, data })
 
     } catch (error) {
       alert('Sorry, an error occurred.')
-      console.log(error)
+      console.error(error)
     }
 
   }
@@ -126,6 +124,8 @@ class PdfReader extends Component<Props, State> {
         <WebView
           style={{ flex: 1, backgroundColor: 'rgb(82, 86, 89)' }}
           source={{ uri: data }}
+          renderLoading={() => <Loader />}
+          startInLoadingState
         />
       )
     }
@@ -134,8 +134,10 @@ class PdfReader extends Component<Props, State> {
       return (
         <WebView
           style={{ flex: 1, backgroundColor: 'rgb(82, 86, 89)' }}
-          source={{ uri: indexHtmlPath }}
+          source={{ html: viewerHtml(data) }}
           mixedContentMode="always"
+          renderLoading={() => <Loader />}
+          startInLoadingState
         />
       )
     }

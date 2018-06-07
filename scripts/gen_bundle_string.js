@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path');
 const encoding = { encoding: 'utf8' };
 const originPath = path.join(__dirname, '../react-pdf/dist/bundle.js')
-const destinationPath = path.join(__dirname, '../bundleContainer.js')
+const destinationPath = path.join(__dirname, '../bundleContainer.android.js')
 
 const read = path => fs.readFileSync(path, encoding)
 const toBase64 = str => Buffer.from(str).toString('base64')

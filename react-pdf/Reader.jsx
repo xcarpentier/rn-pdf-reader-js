@@ -7,6 +7,7 @@ import './Reader.less'
 
 const ReactContainer = document.querySelector('#react-container')
 
+
 setOptions({
   workerSrc: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.305/pdf.worker.min.js',
   disableWorker: false,
@@ -23,23 +24,26 @@ class Reader extends Component {
     direction: 'down'
   }
 
-  onDocumentLoadSuccess = ({ numPages }) =>
+  onDocumentLoadSuccess = ({ numPages }) => {
     this.setState({ numPages })
+    this._doc.addEventListener('touchstart', this.onTouchStart)
+    this._doc.addEventListener('touchend', this.onTouchEnd)
+  }
 
   onError = error => window.alert('Error while loading document! \n' + error.message)
 
-  componentDidMount() {
-    ReactContainer.addEventListener('touchstart', this.onTouchStart)
-    ReactContainer.addEventListener('touchend', this.onTouchEnd)
+  componentWillUnmount() {
+    this._doc.removeEventListener('touchstart', this.onTouchStart)
+    this._doc.removeEventListener('touchend', this.onTouchEnd)
   }
 
   onTouchStart = event => {
-    event.preventDefault();
+    event.preventDefault()
     this.setState({ touchStartY: event.changedTouches[0].clientY })
   }
 
   onTouchEnd = event => {
-    event.preventDefault();
+    event.preventDefault()
     this.setState(({ currentPage, touchStartY, numPages }) => {
       const { clientY: touchEndY } = event.changedTouches[0]
       if (touchStartY > touchEndY && currentPage < numPages) {
@@ -49,6 +53,22 @@ class Reader extends Component {
         return { currentPage: currentPage - 1, touchEndY, direction: 'up' }
       }
     })
+  }
+
+  goUp = event => {
+    event.preventDefault()
+    const { currentPage } = this.state
+    if(currentPage > 1) {
+      this.setState({ currentPage: currentPage - 1, direction: 'up' })
+    }
+  }
+
+  goDown = event => {
+    event.preventDefault()
+    const { currentPage, numPages } = this.state
+    if(currentPage < numPages) {
+      this.setState({ currentPage: currentPage + 1, direction: 'down' })
+    }
   }
 
   renderLoader = () => (
@@ -72,6 +92,7 @@ class Reader extends Component {
         <div className="Reader__container">
           <div className="Reader__container__document">
             <Document
+              inputRef={ref => this._doc = ref}
               file={{ data: atob(file.split(',')[1])}}
               onLoadSuccess={this.onDocumentLoadSuccess}
               onLoadError={this.onError}
@@ -79,7 +100,10 @@ class Reader extends Component {
               loading={this.renderLoader()}
             >
               <ReactCSSTransitionGroup
-                transitionName={direction === 'up' ? 'up-anim' : 'down-anim'}>
+                transitionName={direction === 'up' ? 'up-anim' : 'down-anim'}
+                transitionEnterTimeout={0}
+                transitionLeaveTimeout={0}
+              >
                 <Page
                   loading={" "}
                   key={`page_${currentPage}`}
@@ -90,6 +114,25 @@ class Reader extends Component {
                 />
               </ReactCSSTransitionGroup>
             </Document>
+          </div>
+          <div className="Reader__container__numbers">
+            <div className="Reader__container__numbers__content">
+              {currentPage} / {numPages}
+            </div>
+          </div>
+          <div className="Reader__container__navigate">
+            <div
+              className="Reader__container__numbers__navigate__up"
+              onTouchEnd={this.goUp}
+            >
+              &#x25B2;
+            </div>
+            <div
+              className="Reader__container__numbers__navigate__down"
+              onTouchEnd={this.goDown}
+            >
+              &#x25BC;
+            </div>
           </div>
         </div>
       </div>

@@ -5,48 +5,6 @@ body {
   font-family: Helvetica,Arial,sans-serif;
 }
 
-//
-.up-anim-enter {
-  margin-top: -200%;
-  opacity: 0.1;
-}
-
-.up-anim-enter.up-anim-enter-active {
-  margin-top: 0%;
-  opacity: 1;
-  transition: margin-top 500ms ease, opacity 500ms ease;
-}
-
-.up-anim-leave {
-  opacity: 1;
-}
-
-.up-anim-leave.up-anim-leave-active {
-  opacity: 0;
-  transition: opacity 1ms ease;
-}
-
-//
-.down-anim-enter {
-  margin-top: 200%;
-  opacity: 0.1;
-}
-
-.down-anim-enter.down-anim-enter-active {
-  margin-top: 0%;
-  opacity: 1;
-  transition: margin-top 500ms ease, opacity 500ms ease;
-}
-
-.down-anim-leave {
-  opacity: 1;
-}
-
-.down-anim-leave.down-anim-leave-active {
-  opacity: 0;
-  transition: opacity 1ms ease;
-}
-
 .Reader {
 
   &__container {
@@ -64,16 +22,16 @@ body {
 
     &__numbers {
       position: absolute;
-      top: 7px;
+      top: 15px;
       width: 100%;
       margin: auto;
 
       &__content {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         text-align: center;
         padding: 5px;
         border-radius: 4px;
-        background-color: rgba(255, 255, 255, 0.5);
+        background-color: rgba(255, 255, 255, 0.3);
         width: 50px;
         margin: auto;
       }
@@ -81,27 +39,20 @@ body {
 
     &__navigate {
       position: absolute;
-      bottom: 15px;
+      bottom: 5px;
       width: 100%;
       margin: auto;
       display: flex;
       justify-content: space-around;
       align-items: center;
-      font-size: 1.5rem;
 
-      &__up {
-        font-size: 1rem;
-        padding: 10px;
+      &__arrow {
+        font-size: 2.5em;
+        padding: 7px;
         margin: 10px;
         width: 100px;
         margin: auto;
-      }
-      &__down {
-        font-size: 1rem;
-        padding: 10px;
-        margin: 10px;
-        width: 100px;
-        margin: auto;
+        text-align: center;
       }
     }
 
@@ -116,7 +67,7 @@ body {
         }
 
         &__Page {
-          max-width: calc(100% - 1em);
+          width: 100%;
 
           canvas {
             max-width: 100%;

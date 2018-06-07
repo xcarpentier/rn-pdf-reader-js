@@ -1,12 +1,10 @@
 import React, { Component } from 'react'
 import { render } from 'react-dom'
 import { Document, Page, setOptions } from 'react-pdf'
-import Loader from "react-md-spinner"
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
+import raf, { cancel } from 'raf'
 import './Reader.less'
 
 const ReactContainer = document.querySelector('#react-container')
-
 
 setOptions({
   workerSrc: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.305/pdf.worker.min.js',
@@ -20,9 +18,12 @@ class Reader extends Component {
     numPages: null,
     currentPage: 1,
     touchStartY: 0,
-    touchEndY: 0,
-    direction: 'down'
+    ready: true
   }
+
+  pages = new Map()
+  pageRefs = new Map()
+  pageImgs = new Map()
 
   onDocumentLoadSuccess = ({ numPages }) => {
     this.setState({ numPages })
@@ -44,31 +45,52 @@ class Reader extends Component {
 
   onTouchEnd = event => {
     event.preventDefault()
-    this.setState(({ currentPage, touchStartY, numPages }) => {
-      const { clientY: touchEndY } = event.changedTouches[0]
-      if (touchStartY > touchEndY && currentPage < numPages) {
-        return { currentPage: currentPage + 1, touchEndY, direction: 'down' }
-      }
-      if (touchStartY < touchEndY && currentPage > 1) {
-        return { currentPage: currentPage - 1, touchEndY, direction: 'up' }
-      }
-    })
+    const { currentPage, touchStartY, numPages } = this.state
+    const { clientY: touchEndY } = event.changedTouches[0]
+    if (touchStartY > touchEndY && currentPage < numPages) {
+      raf(this.down)
+    }
+    if (touchStartY < touchEndY && currentPage > 1) {
+      raf(this.up)
+    }
+  }
+
+  cache = currentPage => {
+    if(!this.pageImgs.has(currentPage)) {
+      this.pageImgs.set(
+        currentPage,
+        this.pageRefs.get(currentPage).children[0].toDataURL('image/png')
+      )
+    }
+  }
+
+  up = () => {
+    const { currentPage } = this.state
+    this.cache(currentPage)
+    if(currentPage > 1) {
+      this.setState({ currentPage: currentPage - 1 })
+    }
+    cancel(this.up)
+  }
+
+
+  down = () => {
+    const { currentPage, numPages } = this.state
+    this.cache(currentPage)
+    if(currentPage < numPages) {
+      this.setState({ currentPage: currentPage + 1 })
+    }
+    cancel(this.down)
   }
 
   goUp = event => {
     event.preventDefault()
-    const { currentPage } = this.state
-    if(currentPage > 1) {
-      this.setState({ currentPage: currentPage - 1, direction: 'up' })
-    }
+    raf(this.up)
   }
 
   goDown = event => {
     event.preventDefault()
-    const { currentPage, numPages } = this.state
-    if(currentPage < numPages) {
-      this.setState({ currentPage: currentPage + 1, direction: 'down' })
-    }
+    raf(this.down)
   }
 
   renderLoader = () => (
@@ -78,15 +100,46 @@ class Reader extends Component {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: '#fff'
     }}>
-      <Loader />
+      <p style={{color: '#fff'}}>
+        Loading...
+      </p>
     </div>
   )
 
+  renderPage = pageNumber => {
+    if(pageNumber > this.pages.size) {
+      const thePage = (
+        <Page
+          loading={" "}
+          inputRef={ref => ref && this.pageRefs.set(pageNumber, ref)}
+          key={`page_${pageNumber}`}
+          pageNumber={pageNumber}
+          onLoadError={this.onError}
+          onRenderError={this.onError}
+          onGetTextError={this.onError}
+        />
+      )
+      this.pages.set(pageNumber, thePage)
+      return thePage
+    } else {
+      if(this.pageImgs.has(pageNumber)) {
+        return (
+          <img
+            src={this.pageImgs.get(pageNumber)}
+            style={{width: '100%'}}
+          />
+        )
+      } else {
+        return this.pages.get(pageNumber)
+      }
+    }
+  }
+
   render() {
-    const { numPages, currentPage, direction } = this.state;
+    const { numPages, currentPage } = this.state;
     const { file } = this.props;
+
     return (
       <div className="Reader">
         <div className="Reader__container">
@@ -98,21 +151,11 @@ class Reader extends Component {
               onLoadError={this.onError}
               onSourceError={this.onError}
               loading={this.renderLoader()}
+              options={{
+                nativeImageDecoderSupport: 'none'
+              }}
             >
-              <ReactCSSTransitionGroup
-                transitionName={direction === 'up' ? 'up-anim' : 'down-anim'}
-                transitionEnterTimeout={0}
-                transitionLeaveTimeout={0}
-              >
-                <Page
-                  loading={" "}
-                  key={`page_${currentPage}`}
-                  pageNumber={currentPage}
-                  onLoadError={this.onError}
-                  onRenderError={this.onError}
-                  onGetTextError={this.onError}
-                />
-              </ReactCSSTransitionGroup>
+              {this.renderPage(currentPage)}
             </Document>
           </div>
           <div className="Reader__container__numbers">
@@ -120,15 +163,17 @@ class Reader extends Component {
               {currentPage} / {numPages}
             </div>
           </div>
-          <div className="Reader__container__navigate">
+          <div className={"Reader__container__navigate"} >
             <div
-              className="Reader__container__numbers__navigate__up"
+              className="Reader__container__navigate__arrow"
+              style={currentPage === 1 ? { color: 'rgba(255,255,255,0.2)' } : {}}
               onTouchEnd={this.goUp}
             >
               &#x25B2;
             </div>
             <div
-              className="Reader__container__numbers__navigate__down"
+              className="Reader__container__navigate__arrow"
+              style={currentPage === numPages ? { color: 'rgba(255,255,255,0.2)' } : {}}
               onTouchEnd={this.goDown}
             >
               &#x25BC;

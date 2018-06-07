@@ -7,8 +7,8 @@
     "dev": "./node_modules/.bin/webpack-dev-server --mode=development"
   },
   "dependencies": {
+    "raf": "3.4.0",
     "react": "^16.3.0",
-    "react-addons-css-transition-group": "15.6.2",
     "react-dom": "^16.3.0",
     "react-md-spinner": "0.2.5",
     "react-pdf": "^3.0.5"

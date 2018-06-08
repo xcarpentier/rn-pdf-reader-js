@@ -2,13 +2,13 @@
 <p align="center">Android support 🚀</p>
 
 <p align="center">
-   <img width="200" src="https://image.ibb.co/hqOy5y/Screenshot_20180531_185949.png" />
+   <img width="250" src="https://thumbs.gfycat.com/QuickAnnualFinch-size_restricted.gif" />
    <br/>
    <br/>
    <br/>
    <br/>
    <a href="https://www.npmjs.com/package/rn-pdf-reader-js"><img alt="npm version" src="https://badge.fury.io/js/rn-pdf-reader-js.svg"/>
-   <a href="http://reactnative.gallery"><img src="https://img.shields.io/badge/reactnative.gallery-%F0%9F%8E%AC-green.svg"/></a>
+   <a href="http://reactnative.gallery/xcarpentier/rn-pdf-reader-js"><img src="https://img.shields.io/badge/reactnative.gallery-%F0%9F%8E%AC-green.svg"/></a>
 </a>
 </p>
 <p align="center">

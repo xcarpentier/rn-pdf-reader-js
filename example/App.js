@@ -8,7 +8,7 @@ export default class App extends React.Component {
     return (
       <View style={styles.container}>
         <PdfReader source={{
-          uri: 'https://raw.githubusercontent.com/wojtekmaj/react-pdf/master/sample/webpack/sample.pdf'
+          uri: 'http://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf'
         }}
         />
       </View>

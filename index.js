@@ -114,7 +114,7 @@ class PdfReader extends Component<Props, State> {
 
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.init()
   }
 
@@ -126,8 +126,6 @@ class PdfReader extends Component<Props, State> {
         <WebView
           style={{ flex: 1, backgroundColor: 'rgb(82, 86, 89)' }}
           source={{ uri: data }}
-          renderLoading={() => <Loader />}
-          startInLoadingState
         />
       )
     }
@@ -138,8 +136,6 @@ class PdfReader extends Component<Props, State> {
           style={{ flex: 1, backgroundColor: 'rgb(82, 86, 89)' }}
           source={{ uri: htmlPath }}
           mixedContentMode="always"
-          renderLoading={() => <Loader />}
-          startInLoadingState
         />
       )
     }

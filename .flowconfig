@@ -1,6 +1,8 @@
 [ignore]
 expo
 react-native
+example
+
 [include]
 
 [libs]

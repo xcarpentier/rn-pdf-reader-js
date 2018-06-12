@@ -7,10 +7,7 @@ export default class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <PdfReader source={{
-          uri: 'http://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf'
-        }}
-        />
+        <PdfReader source={{ uri: 'http://www.pdf995.com/samples/pdf.pdf'}}/>
       </View>
     );
   }

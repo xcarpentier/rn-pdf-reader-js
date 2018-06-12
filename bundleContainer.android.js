@@ -4,3 +4,6 @@ const bundle = 'IWZ1bmN0aW9uKGUpe2Z1bmN0aW9uIHQodCl7Zm9yKHZhciByLGEsaT10WzBdLG89
 export function getBundle() {
   return Base64.decode(bundle)
 }
+export function getBundleMd5() {
+  return 'b2417c6933acdc7ec97d49b0b6082622'
+}

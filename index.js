@@ -2,9 +2,14 @@
 import React, { Component } from 'react'
 import { WebView, View, ActivityIndicator, Platform } from 'react-native'
 import { FileSystem } from 'expo'
-import { getBundle } from './bundleContainer'
 
-const { documentDirectory, writeAsStringAsync, deleteAsync } = FileSystem
+
+const {
+  cacheDirectory,
+  writeAsStringAsync,
+  deleteAsync,
+  getInfoAsync
+} = FileSystem
 
 function viewerHtml(base64: string): string {
  return `
@@ -23,17 +28,20 @@ function viewerHtml(base64: string): string {
  </html>
 `
 }
-const bundleJsPath = `${documentDirectory}bundle.js`
-const htmlPath = `${documentDirectory}index.html`
+const bundleJsPath = `${cacheDirectory}bundle.js`
+const htmlPath = `${cacheDirectory}index.html`
 
 async function writeWebViewReaderFileAsync(data: string): Promise<*> {
-  // TODO: read info and test exist and md5
-  await writeAsStringAsync(bundleJsPath, getBundle())
+  const { exist, md5 } = await getInfoAsync(bundleJsPath, { md5: true })
+  const bundleContainer = require('./bundleContainer')
+  if(!exist || bundleContainer.getBundleMd5() !== md5) {
+    await writeAsStringAsync(bundleJsPath, bundleContainer.getBundle())
+  }
   await writeAsStringAsync(htmlPath, viewerHtml(data))
 }
 
-export async function removeFilesAllAsync(): Promise<*> {
-  await deleteAsync(bundleJsPath)
+export async function removeFilesAsync(): Promise<*> {
+  await deleteAsync(htmlPath)
 }
 
 function readAsTextAsync(mediaBlob: Blob): Promise<string> {
@@ -116,6 +124,12 @@ class PdfReader extends Component<Props, State> {
 
   componentDidMount() {
     this.init()
+  }
+
+  componentWillUnmount() {
+    if(this.state.android) {
+      removeFilesAsync()
+    }
   }
 
   render() {

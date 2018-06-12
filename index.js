@@ -1,8 +1,8 @@
 // @flow
 import React, { Component } from 'react'
-import { WebView, View, ActivityIndicator, Platform } from 'react-native'
+import { WebView, View, ActivityIndicator, Platform, StyleSheet } from 'react-native'
 import { FileSystem } from 'expo'
-
+import { Constants } from 'expo';
 
 const {
   cacheDirectory,
@@ -18,7 +18,7 @@ function viewerHtml(base64: string): string {
    <head>
      <title>PDF reader</title>
      <meta charset="utf-8" />
-     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
    </head>
    <body>
      <div id="file" data-file="${base64}"></div>
@@ -72,6 +72,18 @@ const Loader = () => (
     <ActivityIndicator size="large"/>
   </View>
 )
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: Constants.statusBarHeight,
+    backgroundColor: '#ecf0f1',
+  },
+  webview: {
+    flex: 1,
+    backgroundColor: 'rgb(82, 86, 89)'
+  }
+});
 
 type Props = {
   source: {
@@ -137,20 +149,24 @@ class PdfReader extends Component<Props, State> {
 
     if (ready && data && ios) {
       return (
-        <WebView
-          style={{ flex: 1, backgroundColor: 'rgb(82, 86, 89)' }}
-          source={{ uri: data }}
-        />
+        <View style={styles.container}>
+          <WebView
+            style={styles.webview}
+            source={{ uri: data }}
+          />
+        </View>
       )
     }
 
     if (ready && data && android) {
       return (
-        <WebView
-          style={{ flex: 1, backgroundColor: 'rgb(82, 86, 89)' }}
-          source={{ uri: htmlPath }}
-          mixedContentMode="always"
-        />
+        <View style={styles.container}>
+          <WebView
+            style={styles.webview}
+            source={{ uri: htmlPath }}
+            mixedContentMode="always"
+          />
+        </View>
       )
     }
 

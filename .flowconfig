@@ -4,7 +4,7 @@ react-native
 example
 
 [include]
-
+*./node_modules/expo/*
 [libs]
 
 [lints]

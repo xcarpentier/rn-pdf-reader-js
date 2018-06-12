@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { render } from 'react-dom'
 import { Document, Page, setOptions } from 'react-pdf'
 import raf, { cancel } from 'raf'
+import Down from './components/down'
+import Up from './components/up'
 import './Reader.less'
 
 const ReactContainer = document.querySelector('#react-container')
@@ -18,7 +20,11 @@ class Reader extends Component {
     numPages: null,
     currentPage: 1,
     touchStartY: 0,
-    ready: true
+    ready: true,
+    pageLoaded: false,
+    pageRendered: false,
+    getText: false,
+    cached: false
   }
 
   pages = new Map()
@@ -55,20 +61,27 @@ class Reader extends Component {
     }
   }
 
-  cache = currentPage => {
-    if(!this.pageImgs.has(currentPage)) {
+  cache = pageKey => {
+    if(!this.pageImgs.has(pageKey)) {
       this.pageImgs.set(
-        currentPage,
-        this.pageRefs.get(currentPage).children[0].toDataURL('image/png')
+        pageKey,
+        this.pageRefs.get(pageKey).children[0].toDataURL('image/png')
       )
     }
   }
 
   up = () => {
     const { currentPage } = this.state
-    this.cache(currentPage)
     if(currentPage > 1) {
-      this.setState({ currentPage: currentPage - 1 })
+      const target = currentPage - 1
+      this.setState({ currentPage: target })
+      if(!this.pageImgs.has(target)) {
+        this.setState({
+          pageLoaded: false,
+          pageRendered: false,
+          getText: false
+        })
+      }
     }
     cancel(this.up)
   }
@@ -76,9 +89,16 @@ class Reader extends Component {
 
   down = () => {
     const { currentPage, numPages } = this.state
-    this.cache(currentPage)
     if(currentPage < numPages) {
-      this.setState({ currentPage: currentPage + 1 })
+      const target = currentPage + 1
+      this.setState({ currentPage: target })
+      if(!this.pageImgs.has(target)) {
+        this.setState({
+          pageLoaded: false,
+          pageRendered: false,
+          getText: false
+        })
+      }
     }
     cancel(this.down)
   }
@@ -107,6 +127,24 @@ class Reader extends Component {
     </div>
   )
 
+  renderImage = pageNumber => (
+    <img
+      src={this.pageImgs.get(pageNumber)}
+      style={{ width: '100%' }}
+    />
+  )
+
+  onPageReadyToCache = pageStatus => {
+    const { pageLoaded, pageRendered, getText, currentPage } = this.state
+    const newValue = { pageLoaded, pageRendered, getText, ...pageStatus }
+    if (newValue.pageLoaded && newValue.pageRendered && newValue.getText) {
+      this.cache(currentPage)
+      this.setState({ cached: true })
+    } else {
+      this.setState({ cached: false, ...pageStatus })
+    }
+  }
+
   renderPage = pageNumber => {
     if(pageNumber > this.pages.size) {
       const thePage = (
@@ -117,19 +155,23 @@ class Reader extends Component {
           pageNumber={pageNumber}
           onLoadError={this.onError}
           onRenderError={this.onError}
+          renderAnnotations={false}
           onGetTextError={this.onError}
+          onLoadSuccess={() => this.onPageReadyToCache({ pageLoaded: true })}
+          onRenderSuccess={() => this.onPageReadyToCache({ pageRendered: true })}
+          onGetTextSuccess={() => this.onPageReadyToCache({ getText: true })}
         />
       )
       this.pages.set(pageNumber, thePage)
-      return thePage
+      const { cached } = this.state
+      if (cached) {
+        return this.renderImage(pageNumber)
+      } else {
+        return thePage
+      }
     } else {
       if(this.pageImgs.has(pageNumber)) {
-        return (
-          <img
-            src={this.pageImgs.get(pageNumber)}
-            style={{width: '100%'}}
-          />
-        )
+        return this.renderImage(pageNumber)
       } else {
         return this.pages.get(pageNumber)
       }
@@ -137,20 +179,19 @@ class Reader extends Component {
   }
 
   render() {
-    const { numPages, currentPage } = this.state;
+    const { numPages, currentPage, cached, ready } = this.state;
     const { file } = this.props;
-
     return (
       <div className="Reader">
         <div className="Reader__container">
           <div className="Reader__container__document">
             <Document
+              loading={" "}
               inputRef={ref => this._doc = ref}
               file={{ data: atob(file.split(',')[1])}}
               onLoadSuccess={this.onDocumentLoadSuccess}
               onLoadError={this.onError}
               onSourceError={this.onError}
-              loading={this.renderLoader()}
               options={{
                 nativeImageDecoderSupport: 'none'
               }}
@@ -158,25 +199,31 @@ class Reader extends Component {
               {this.renderPage(currentPage)}
             </Document>
           </div>
-          <div className="Reader__container__numbers">
-            <div className="Reader__container__numbers__content">
-              {currentPage} / {numPages}
+
+          {!cached &&  this.renderLoader()}
+
+          { numPages &&
+            <div className="Reader__container__numbers">
+              <div className="Reader__container__numbers__content">
+                {currentPage} / {numPages}
+              </div>
             </div>
-          </div>
+          }
+
           <div className={"Reader__container__navigate"} >
             <div
               className="Reader__container__navigate__arrow"
               style={currentPage === 1 ? { color: 'rgba(255,255,255,0.2)' } : {}}
               onTouchEnd={this.goUp}
             >
-              &#x25B2;
+              <Up />
             </div>
             <div
               className="Reader__container__navigate__arrow"
               style={currentPage === numPages ? { color: 'rgba(255,255,255,0.2)' } : {}}
               onTouchEnd={this.goDown}
             >
-              &#x25BC;
+              <Down />
             </div>
           </div>
         </div>

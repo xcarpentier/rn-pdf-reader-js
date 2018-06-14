@@ -19,7 +19,7 @@
 
 ## Limitations
 - **Display file only on full screen.**
-- **Embeded in PDF binary image is not showing in Android** 
+- **Embeded in PDF binary image is not showing (yet) in Android** 
 
 ## Example
 

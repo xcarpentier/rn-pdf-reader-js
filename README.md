@@ -17,6 +17,9 @@
 
 ## Read a PDF just with JS (no native libs needed)
 
+## Limitations
+- **Display file only on full screen.**
+
 ## Example
 
 ```javascript

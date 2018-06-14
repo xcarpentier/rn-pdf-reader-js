@@ -67,3 +67,6 @@ const styles = StyleSheet.create({
 * Expo FileSystem API
 * Base64
 
+## FAQ
+- [Why the component doesn't render PDF?](https://github.com/xcarpentier/rn-pdf-reader-js/issues/15#issuecomment-397306743)
+

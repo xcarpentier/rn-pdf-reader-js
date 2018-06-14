@@ -21,6 +21,8 @@
 - **Display file only on full screen.**
 - **Embeded in PDF binary image is not showing (yet) in Android** 
 
+[PRs are welcome...](https://github.com/xcarpentier/rn-pdf-reader-js/pulls)
+
 ## Example
 
 ```javascript

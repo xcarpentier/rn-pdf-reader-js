@@ -1,5 +1,5 @@
 {
-  "name": "rn-pdf-reader-js",
+  "name": "@dmsi/rn-pdf-reader-js",
   "version": "0.2.0",
   "description": "PDF reader for Expo",
   "main": "index.js",

@@ -1,34 +1,18 @@
-<h1 align="center">PDF reader for Expo</h1>
-<p align="center">Android support 🚀</p>
+##React Native PDF Reader - Expo Compatible (no linking!)
+![example](https://thumbs.gfycat.com/DeadPoisedBrownbutterfly-max-14mb.gif)
 
-<p align="center">
-   <img width="250" src="https://thumbs.gfycat.com/QuickAnnualFinch-size_restricted.gif" />
-   <br/>
-   <br/>
-   <br/>
-   <br/>
-   <a href="https://www.npmjs.com/package/rn-pdf-reader-js"><img alt="npm version" src="https://badge.fury.io/js/rn-pdf-reader-js.svg"/>
-   <a href="http://reactnative.gallery/xcarpentier/rn-pdf-reader-js"><img src="https://img.shields.io/badge/reactnative.gallery-%F0%9F%8E%AC-green.svg"/></a>
-</a>
-</p>
-<p align="center">
-  <a href="https://exp.host/@xcarpentier/rn-pdf-reader-example">💥 DEMO 💥</a>
-</p>
-
-## Read a PDF just with JS (no native libs needed)
+## Read a PDF just with JS (no native libs or linking required)
+Android support 🚀
 
 ## Limitations
-- **Display file only on full screen.**
 - **Embeded in PDF binary image is not showing (yet) in Android** 
 
-[PRs are welcome...](https://github.com/xcarpentier/rn-pdf-reader-js/pulls)
-
-## Example
+## Example with PDF link
 
 ```javascript
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import PDFReader from 'rn-pdf-reader-js';
+import PDFReader from '@dmsi/rn-pdf-reader-js';
 import { Constants } from 'expo';
 
 export default class App extends React.Component {
@@ -51,7 +35,32 @@ const styles = StyleSheet.create({
   },
 });
 ```
+## Example with Base64 PDF
+```javascript
+import React from 'react';
+import { View } from 'react-native';
+import PDFViewer from '@dmsi/rn-pdf-reader-js';
+import PropTypes from 'prop-types';
 
+import PDFViewer from '../../rn-pdf-reader-js';
+
+const TermsAndConditions = (props) => (
+  <View style={{ flex: 1 }}>
+    <PDFViewer
+      source={{
+        base64: props.data,
+      }}
+    />
+  </View>
+);
+
+TermsAndConditions.propTypes = {
+  data: PropTypes.string.isRequired,
+};
+
+export default TermsAndConditions;
+
+```
 ## Props
 * source: `Object`
   * uri?: `string` - can be local or served on the web (ie. start withs `https://` or `file://`)
@@ -63,16 +72,16 @@ const styles = StyleSheet.create({
 * Only React-Native 0.54+ support, Expo SDK 27
 
 ## Features
-* **For Android, use react-pdf / pdfjs in the webview**
-* For iOS devices, display file directly to the WebView
+* **Android specific: uses native React.js with react-pdf npm webpacked and compiled into base64 string which is displayed in a React Native WebView**
+* For iOS devices, display file directly to the WebView - because iOS is awesome and provides all that for us.
 
 ## What rn-pdf-reader-js use?
-
-* react-pdf (pdf.js)
+* React.js
+  * Used for the react-pdf component and any other browser components we might add.
+* react-pdf (pdf.js) 
+  * Used to render our PDF using divs and native text for clear PDF viewing
 * WebView
+  * Used to inject our React.js and react-pdf javascript in React Native
 * Expo FileSystem API
 * Base64
-
-## FAQ
-- [Why the component doesn't render PDF?](https://github.com/xcarpentier/rn-pdf-reader-js/issues/15#issuecomment-397306743)
 

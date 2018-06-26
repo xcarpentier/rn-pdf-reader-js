@@ -1,5 +1,6 @@
-import React from 'react'
-export default () => (
+import React from 'react';
+
+export default () => ( // eslint-disable-line react/display-name
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -10,9 +11,10 @@ export default () => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="feather feather-arrow-up"
+    className=""
   >
-    <line x1="12" y1="19" x2="12" y2="5"/>
-    <polyline points="5 12 12 5 19 12"/>
+    <polyline points="5 12 19 12" />
+    <polyline points="12 5 12 19" />
   </svg>
-)
+);
+

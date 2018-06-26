@@ -1,206 +1,143 @@
-import React, { Component } from 'react'
-import { render } from 'react-dom'
-import { Document, Page, setOptions } from 'react-pdf'
-import raf, { cancel } from 'raf'
-import Down from './components/down'
-import Up from './components/up'
-import './Reader.less'
+import React, { Component } from 'react';
+import { render } from 'react-dom';
+import { Document, Page, setOptions } from 'react-pdf';
+import raf, { cancel } from 'raf';
+import PropTypes from 'prop-types';
 
-const ReactContainer = document.querySelector('#react-container')
+import Left from './components/Left';
+import Right from './components/Right';
+import Minus from './components/Minus';
+import Plus from './components/Plus';
+
+import './Reader.less';
+
+const ReactContainer = document.querySelector('#react-container'); // eslint-disable-line no-undef
 
 setOptions({
   workerSrc: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.305/pdf.worker.min.js',
   disableWorker: false,
   cMapUrl: 'https://github.com/mozilla/pdfjs-dist/raw/master/cmaps/',
-  cMapPacked: true
+  cMapPacked: true,
 });
 
 class Reader extends Component {
   state = {
     numPages: null,
     currentPage: 1,
-    touchStartY: 0,
-    ready: true,
-    pageLoaded: false,
-    pageRendered: false,
-    getText: false,
-    cached: false
+    scale: 0.75,
   }
 
-  pages = new Map()
   pageRefs = new Map()
-  pageImgs = new Map()
 
+  MAX_SCALE = 2;
+
+  __zoomEvent = false;
   onDocumentLoadSuccess = ({ numPages }) => {
-    this.setState({ numPages })
-    this._doc.addEventListener('touchstart', this.onTouchStart)
-    this._doc.addEventListener('touchend', this.onTouchEnd)
+    this.setState({ numPages });
   }
 
-  onError = error => window.alert('Error while loading document! \n' + error.message)
+  onError = (error) => window.alert(`Error while loading document! \n${error.message}`); // eslint-disable-line no-undef, no-alert
 
-  componentWillUnmount() {
-    this._doc.removeEventListener('touchstart', this.onTouchStart)
-    this._doc.removeEventListener('touchend', this.onTouchEnd)
-  }
-
-  onTouchStart = event => {
-    event.preventDefault()
-    this.setState({ touchStartY: event.changedTouches[0].clientY })
-  }
-
-  onTouchEnd = event => {
-    event.preventDefault()
-    const { currentPage, touchStartY, numPages } = this.state
-    const { clientY: touchEndY } = event.changedTouches[0]
-    if (touchStartY > touchEndY && currentPage < numPages) {
-      raf(this.down)
-    }
-    if (touchStartY < touchEndY && currentPage > 1) {
-      raf(this.up)
+  zoomOut = (event) => {
+    event.preventDefault();
+    if (!this.__zoomEvent) {
+      raf(this.zOut);
     }
   }
 
-  cache = pageKey => {
-    if(!this.pageImgs.has(pageKey)) {
-      this.pageImgs.set(
-        pageKey,
-        this.pageRefs.get(pageKey).children[0].toDataURL('image/png')
-      )
+  zoomIn = (event) => {
+    event.preventDefault();
+    if (!this.__zoomEvent) { // eslint-disable-line no-underscore-dangle
+      raf(this.zIn);
+    }
+  }
+
+  zOut = () => {
+    console.log(this.state.scale);
+    if (this.state.scale >= 0.75) {
+      this.__zoomEvent = true;
+      this.setState((previousState) => ({
+        scale: previousState.scale - 0.25,
+      }));
+    }
+  }
+
+  zIn = () => {
+    console.log(this.state.scale);
+    if (this.state.scale <= this.MAX_SCALE - 0.25) {
+      this.__zoomEvent = true;
+      this.setState((previousState) => ({
+        scale: previousState.scale + 0.25,
+      }));
     }
   }
 
   up = () => {
-    const { currentPage } = this.state
-    if(currentPage > 1) {
-      const target = currentPage - 1
-      this.setState({ currentPage: target })
-      if(!this.pageImgs.has(target)) {
-        this.setState({
-          pageLoaded: false,
-          pageRendered: false,
-          getText: false
-        })
-      }
+    const { currentPage } = this.state;
+    if (currentPage > 1) {
+      const target = currentPage - 1;
+      this.setState({ currentPage: target });
     }
-    cancel(this.up)
+    cancel(this.up);
   }
 
 
   down = () => {
-    const { currentPage, numPages } = this.state
-    if(currentPage < numPages) {
-      const target = currentPage + 1
-      this.setState({ currentPage: target })
-      if(!this.pageImgs.has(target)) {
-        this.setState({
-          pageLoaded: false,
-          pageRendered: false,
-          getText: false
-        })
-      }
+    const { currentPage, numPages } = this.state;
+    if (currentPage < numPages) {
+      const target = currentPage + 1;
+      this.setState({ currentPage: target });
     }
-    cancel(this.down)
+    cancel(this.down);
   }
 
-  goUp = event => {
-    event.preventDefault()
-    raf(this.up)
+  goUp = (event) => {
+    event.preventDefault();
+    raf(this.up);
   }
 
-  goDown = event => {
-    event.preventDefault()
-    raf(this.down)
+  goDown = (event) => {
+    event.preventDefault();
+    raf(this.down);
   }
 
-  renderLoader = () => (
-    <div style={{
-      width: window.innerWidth,
-      height: window.innerHeight,
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
-      <p style={{color: '#fff'}}>
-        Loading...
-      </p>
-    </div>
-  )
-
-  renderImage = pageNumber => (
-    <img
-      src={this.pageImgs.get(pageNumber)}
-      style={{ width: '100%' }}
+  renderPage = (pageNumber) => (
+    <Page
+      loading=" "
+      inputRef={(ref) => ref && this.pageRefs.set(pageNumber, ref)}
+      key={`page_${pageNumber}`}
+      pageNumber={pageNumber}
+      onLoadError={this.onError}
+      onRenderError={this.onError}
+      onGetTextError={this.onError}
+      onRenderSuccess={() => { (this.__zoomEvent = false); }}
+      scale={this.state.scale}
     />
   )
 
-  onPageReadyToCache = pageStatus => {
-    const { pageLoaded, pageRendered, getText, currentPage } = this.state
-    const newValue = { pageLoaded, pageRendered, getText, ...pageStatus }
-    if (newValue.pageLoaded && newValue.pageRendered && newValue.getText) {
-      this.cache(currentPage)
-      this.setState({ cached: true })
-    } else {
-      this.setState({ cached: false, ...pageStatus })
-    }
-  }
-
-  renderPage = pageNumber => {
-    if(pageNumber > this.pages.size) {
-      const thePage = (
-        <Page
-          loading={" "}
-          inputRef={ref => ref && this.pageRefs.set(pageNumber, ref)}
-          key={`page_${pageNumber}`}
-          pageNumber={pageNumber}
-          onLoadError={this.onError}
-          onRenderError={this.onError}
-          renderAnnotations={false}
-          onGetTextError={this.onError}
-          onLoadSuccess={() => this.onPageReadyToCache({ pageLoaded: true })}
-          onRenderSuccess={() => this.onPageReadyToCache({ pageRendered: true })}
-          onGetTextSuccess={() => this.onPageReadyToCache({ getText: true })}
-        />
-      )
-      this.pages.set(pageNumber, thePage)
-      const { cached } = this.state
-      if (cached) {
-        return this.renderImage(pageNumber)
-      } else {
-        return thePage
-      }
-    } else {
-      if(this.pageImgs.has(pageNumber)) {
-        return this.renderImage(pageNumber)
-      } else {
-        return this.pages.get(pageNumber)
-      }
-    }
-  }
-
   render() {
-    const { numPages, currentPage, cached, ready } = this.state;
+    const {
+      numPages, currentPage,
+    } = this.state;
     const { file } = this.props;
     return (
       <div className="Reader">
         <div className="Reader__container">
           <div className="Reader__container__document">
             <Document
-              loading={" "}
-              inputRef={ref => this._doc = ref}
-              file={{ data: atob(file.split(',')[1])}}
+              loading=" "
+              inputRef={(ref) => { (this._doc = ref); }}
+              file={{ data: atob(file.split(',')[1]) }} // eslint-disable-line no-undef
               onLoadSuccess={this.onDocumentLoadSuccess}
               onLoadError={this.onError}
               onSourceError={this.onError}
               options={{
-                nativeImageDecoderSupport: 'none'
+                nativeImageDecoderSupport: 'none',
               }}
             >
               {this.renderPage(currentPage)}
             </Document>
           </div>
-
-          {!cached &&  this.renderLoader()}
 
           { numPages &&
             <div className="Reader__container__numbers">
@@ -210,20 +147,38 @@ class Reader extends Component {
             </div>
           }
 
-          <div className={"Reader__container__navigate"} >
-            <div
-              className="Reader__container__navigate__arrow"
-              style={currentPage === 1 ? { color: 'rgba(255,255,255,0.2)' } : {}}
-              onTouchEnd={this.goUp}
+          <div className="Reader__container__zoom_container">
+            <div // eslint-disable-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+              className="Reader__container__zoom_container__button"
+              onTouchEnd={this.zoomIn}
+              onClick={this.zoomIn}
             >
-              <Up />
+              <Plus />
             </div>
-            <div
-              className="Reader__container__navigate__arrow"
-              style={currentPage === numPages ? { color: 'rgba(255,255,255,0.2)' } : {}}
-              onTouchEnd={this.goDown}
+            <div // eslint-disable-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+              className="Reader__container__zoom_container__button"
+              onTouchEnd={this.zoomOut}
+              onClick={this.zoomOut}
             >
-              <Down />
+              <Minus />
+            </div>
+          </div>
+          <div className="Reader__container__navigate">
+            <div // eslint-disable-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+              className="Reader__container__navigate__arrow"
+              style={currentPage === 1 ? { color: 'rgba(255,255,255,0.1)' } : {}}
+              onTouchEnd={this.goUp}
+              onClick={this.goUp}
+            >
+              <Left />
+            </div>
+            <div // eslint-disable-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+              className="Reader__container__navigate__arrow"
+              style={currentPage === numPages ? { color: 'rgba(255,255,255,0.1)' } : {}}
+              onTouchEnd={this.goDown}
+              onClick={this.goDown}
+            >
+              <Right />
             </div>
           </div>
         </div>
@@ -231,7 +186,10 @@ class Reader extends Component {
     );
   }
 }
+Reader.propTypes = {
+  file: PropTypes.string.isRequired,
+};
 
-const tagData = document.querySelector('#file')
-const file = tagData.getAttribute('data-file')
+const tagData = document.querySelector('#file'); // eslint-disable-line no-undef
+const file = tagData.getAttribute('data-file');
 render(<Reader file={file} />, ReactContainer);

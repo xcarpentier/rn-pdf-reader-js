@@ -7,6 +7,7 @@
     "dev": "./node_modules/.bin/webpack-dev-server --mode=development"
   },
   "dependencies": {
+    "prop-types": "^15.6.2",
     "raf": "3.4.0",
     "react": "^16.3.0",
     "react-dom": "^16.3.0",
@@ -30,7 +31,7 @@
     "style-loader": "^0.20.3",
     "url-loader": "^1.0.1",
     "webpack": "4.8.3",
-    "webpack-cli": "2.1.4",
+    "webpack-cli": "^3.0.8",
     "webpack-dev-server": "3.1.4"
   }
 }

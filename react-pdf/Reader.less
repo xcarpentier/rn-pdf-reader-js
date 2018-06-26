@@ -6,59 +6,71 @@ body {
 }
 
 .Reader {
-
+  height: 100vh;
   &__container {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-
-    &__load {
-      margin-top: 1em;
-      color: white;
-    }
-
     &__numbers {
-      position: absolute;
-      top: 15px;
+      position: fixed;
+      top: 0px;
       width: 100%;
       margin: auto;
-
+      padding: 5px;
+      background-color: #565759;
+      z-index: 100;
       &__content {
         font-size: 0.65rem;
         text-align: center;
         padding: 5px;
         border-radius: 4px;
-        background-color: rgba(255, 255, 255, 0.3);
+        background-color: rgba(255, 255, 255, 0.144);
         width: 50px;
         margin: auto;
       }
     }
 
     &__navigate {
-      position: absolute;
-      bottom: 5px;
+      position: fixed;
+      bottom: 0px;
       width: 100%;
       margin: auto;
       display: flex;
       justify-content: space-around;
       align-items: center;
-
+      z-index: 100;
+      background-color: #405a65;
       &__arrow {
         font-size: 2.5em;
-        padding: 7px;
         margin: 10px;
         width: 100px;
         margin: auto;
         text-align: center;
       }
     }
+    &__zoom_container {
+      position: fixed;
+      bottom: 60px;
+      right: 15px;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 101;
+      flex: 1;
+      justify-content: center;
 
+      &__button {
+        font-size: 2.5em;
+        margin: 5;
+        width: 50px;
+        text-align: center;
+      }
+    }
+
+    &__load {
+      margin-top: 1em;
+      color: white;
+    }
 
     &__document {
-      margin: 0;
+      margin: auto;
+      padding-top: 40px;
+      padding-bottom: 50px;
       .react-pdf {
         &__Document span {
           display: flex;
@@ -67,14 +79,10 @@ body {
         }
 
         &__Page {
-          width: 100%;
-          display: none;
-
+          display: block;
           canvas {
-            max-width: 100%;
-            height: auto !important;
+            margin: auto;
           }
-
           &__annotations {
             display: none;
           }

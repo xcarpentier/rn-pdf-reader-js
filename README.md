@@ -19,7 +19,7 @@
 
 ## Limitations
 - **Display file only on full screen.**
-- **Embeded in PDF binary image is not display (yet) in Android** 
+- **Embeded images binary are not display (yet) in Android** 
 
 [PRs are welcome...](https://github.com/xcarpentier/rn-pdf-reader-js/pulls)
 

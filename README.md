@@ -5,7 +5,7 @@
 Android support 🚀
 
 ## Limitations
-- **Embeded in PDF binary image is not showing (yet) in Android** 
+- **Embeded in PDF binary image is not showing in Android** 
 
 ## Example with PDF link
 
@@ -69,7 +69,7 @@ export default TermsAndConditions;
 ## Requirements
 * Use it into Expo app (from expo client, Standalone app or ExpoKit app).
 * Because we need to have access to `Expo.FileSystem`
-* Only React-Native 0.54+ support, Expo SDK 27
+* Targeted / tested version: React Native 0.55.4 / Expo SDK 28.0
 
 ## Features
 * **Android specific: uses native React.js with react-pdf npm webpacked and compiled into base64 string which is displayed in a React Native WebView**

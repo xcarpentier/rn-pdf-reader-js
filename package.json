@@ -1,6 +1,6 @@
 {
   "name": "rn-pdf-reader-js",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "PDF reader for Expo",
   "main": "index.js",
   "author": "Xavier Carpentier <xcapetir@gmail.com> (https://xaviercarpentier.com/)",

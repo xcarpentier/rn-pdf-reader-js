@@ -112,7 +112,7 @@ class PdfReader extends Component<Props, State> {
       this.setState({ ios, android })
 
       let data = undefined
-      if(source.uri && source.uri.startsWith('http') || source.uri && source.uri.startsWith('file')) {
+      if(source.uri && (source.uri.startsWith('http') || source.uri.startsWith('file') || source.uri.startsWith('content'))) {
         data = await fetchPdfAsync(source.uri)
       } else if (source.base64 && source.base64.startsWith('data')) {
         data = source.base64

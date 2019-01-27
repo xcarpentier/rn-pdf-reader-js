@@ -162,6 +162,7 @@ class PdfReader extends Component<Props, State> {
       return (
         <View style={styles.container}>
           <WebView
+            allowFileAccess
             style={styles.webview}
             source={{ uri: htmlPath }}
             mixedContentMode="always"

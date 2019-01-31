@@ -62,9 +62,23 @@ function readAsTextAsync(mediaBlob: Blob): Promise<string> {
 }
 
 async function fetchPdfAsync(url: string): Promise<string> {
-  const result = await fetch(url)
-  const mediaBlob = await result.blob()
+  const mediaBlob = await urlToBlob(url)
   return readAsTextAsync(mediaBlob)
+}
+
+async function urlToBlob(url) {
+  return new Promise((resolve, reject) => {
+    var xhr = new XMLHttpRequest();
+    xhr.onerror = reject;
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState === 4) {
+        resolve(xhr.response);
+      }
+    };
+    xhr.open('GET', url);
+    xhr.responseType = 'blob';
+    xhr.send();
+  })
 }
 
 const Loader = () => (
@@ -112,11 +126,13 @@ class PdfReader extends Component<Props, State> {
       this.setState({ ios, android })
 
       let data = undefined
-      if(source.uri && (source.uri.startsWith('http') || source.uri.startsWith('file') || source.uri.startsWith('content'))) {
+      if(source.uri && android && (source.uri.startsWith('http') || source.uri.startsWith('file') || source.uri.startsWith('content'))) {
         data = await fetchPdfAsync(source.uri)
       } else if (source.base64 && source.base64.startsWith('data')) {
         data = source.base64
-      } else {
+      } else if (ios) {
+        data = source.uri
+      }else {
         alert('source props is not correct')
         return
       }
@@ -148,9 +164,11 @@ class PdfReader extends Component<Props, State> {
     const { ready, data, ios, android } = this.state
 
     if (ready && data && ios) {
+
       return (
         <View style={styles.container}>
           <WebView
+            originWhitelist={['http://*', 'https://*', 'file://*', 'data:*']}
             style={styles.webview}
             source={{ uri: data }}
           />

@@ -2,7 +2,7 @@
 <p align="center">Android support 🚀</p>
 
 <p align="center">
-   <img width="250" src="https://thumbs.gfycat.com/QuickAnnualFinch-size_restricted.gif" />
+   <img width="250" src="https://thumbs.gfycat.com/DeadPoisedBrownbutterfly-max-14mb.gif" />
    <br/>
    <br/>
    <br/>

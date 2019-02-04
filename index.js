@@ -1,18 +1,24 @@
 // @flow
 import React, { Component } from 'react'
-import { WebView, View, ActivityIndicator, Platform, StyleSheet } from 'react-native'
+import {
+  WebView,
+  View,
+  ActivityIndicator,
+  Platform,
+  StyleSheet,
+} from 'react-native'
 import { FileSystem } from 'expo'
-import { Constants } from 'expo';
+import { Constants } from 'expo'
 
 const {
   cacheDirectory,
   writeAsStringAsync,
   deleteAsync,
-  getInfoAsync
+  getInfoAsync,
 } = FileSystem
 
 function viewerHtml(base64: string): string {
- return `
+  return `
  <!DOCTYPE html>
  <html>
    <head>
@@ -34,7 +40,7 @@ const htmlPath = `${cacheDirectory}index.html`
 async function writeWebViewReaderFileAsync(data: string): Promise<*> {
   const { exist, md5 } = await getInfoAsync(bundleJsPath, { md5: true })
   const bundleContainer = require('./bundleContainer')
-  if(!exist || bundleContainer.getBundleMd5() !== md5) {
+  if (!exist || bundleContainer.getBundleMd5() !== md5) {
     await writeAsStringAsync(bundleJsPath, bundleContainer.getBundle())
   }
   await writeAsStringAsync(htmlPath, viewerHtml(data))
@@ -48,11 +54,13 @@ function readAsTextAsync(mediaBlob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
       const reader = new FileReader()
-      reader.onloadend = (e) => {
+      reader.onloadend = e => {
         if (typeof reader.result === 'string') {
           return resolve(reader.result)
         }
-        return reject(`Unable to get result of file due to bad type, waiting string and getting ${typeof reader.result}.`)
+        return reject(
+          `Unable to get result of file due to bad type, waiting string and getting ${typeof reader.result}.`,
+        )
       }
       reader.readAsDataURL(mediaBlob)
     } catch (error) {
@@ -68,22 +76,22 @@ async function fetchPdfAsync(url: string): Promise<string> {
 
 async function urlToBlob(url) {
   return new Promise((resolve, reject) => {
-    var xhr = new XMLHttpRequest();
-    xhr.onerror = reject;
+    var xhr = new XMLHttpRequest()
+    xhr.onerror = reject
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4) {
-        resolve(xhr.response);
+        resolve(xhr.response)
       }
-    };
-    xhr.open('GET', url);
-    xhr.responseType = 'blob';
-    xhr.send();
+    }
+    xhr.open('GET', url)
+    xhr.responseType = 'blob'
+    xhr.send()
   })
 }
 
 const Loader = () => (
   <View style={{ flex: 1, justifyContent: 'center' }}>
-    <ActivityIndicator size="large"/>
+    <ActivityIndicator size="large" />
   </View>
 )
 
@@ -95,26 +103,25 @@ const styles = StyleSheet.create({
   },
   webview: {
     flex: 1,
-    backgroundColor: 'rgb(82, 86, 89)'
-  }
-});
+    backgroundColor: 'rgb(82, 86, 89)',
+  },
+})
 
 type Props = {
   source: {
     uri?: string,
-    base64?: string
-  }
+    base64?: string,
+  },
 }
 
 type State = {
   ready: boolean,
   android: boolean,
   ios: boolean,
-  data?: string
+  data?: string,
 }
 
 class PdfReader extends Component<Props, State> {
-
   state = { ready: false, android: false, ios: false, data: undefined }
 
   async init() {
@@ -126,13 +133,19 @@ class PdfReader extends Component<Props, State> {
       this.setState({ ios, android })
 
       let data = undefined
-      if(source.uri && android && (source.uri.startsWith('http') || source.uri.startsWith('file') || source.uri.startsWith('content'))) {
+      if (
+        source.uri &&
+        android &&
+        (source.uri.startsWith('http') ||
+          source.uri.startsWith('file') ||
+          source.uri.startsWith('content'))
+      ) {
         data = await fetchPdfAsync(source.uri)
       } else if (source.base64 && source.base64.startsWith('data')) {
         data = source.base64
       } else if (ios) {
         data = source.uri
-      }else {
+      } else {
         alert('source props is not correct')
         return
       }
@@ -142,12 +155,10 @@ class PdfReader extends Component<Props, State> {
       }
 
       this.setState({ ready: !!data, data })
-
     } catch (error) {
       alert('Sorry, an error occurred.')
       console.error(error)
     }
-
   }
 
   componentDidMount() {
@@ -155,7 +166,7 @@ class PdfReader extends Component<Props, State> {
   }
 
   componentWillUnmount() {
-    if(this.state.android) {
+    if (this.state.android) {
       removeFilesAsync()
     }
   }
@@ -164,7 +175,6 @@ class PdfReader extends Component<Props, State> {
     const { ready, data, ios, android } = this.state
 
     if (ready && data && ios) {
-
       return (
         <View style={styles.container}>
           <WebView
@@ -184,6 +194,8 @@ class PdfReader extends Component<Props, State> {
             style={styles.webview}
             source={{ uri: htmlPath }}
             mixedContentMode="always"
+            scrollEnabled
+            height="100vh"
           />
         </View>
       )

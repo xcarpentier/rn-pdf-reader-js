@@ -2,63 +2,75 @@ body {
   margin: 0;
   background-color: rgb(82, 86, 89);
   color: #fff;
-  font-family: Helvetica,Arial,sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
 }
 
 .Reader {
-
+  height: 100vh;
   &__container {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-
-    &__load {
-      margin-top: 1em;
-      color: white;
-    }
-
     &__numbers {
-      position: absolute;
-      top: 15px;
+      position: fixed;
+      top: 0px;
       width: 100%;
       margin: auto;
-
+      padding: 5px;
+      background-color: #565759; //changed to make it more visible and to match my application. No idea how this could change for someone who doesn't like the coloring in prod
+      z-index: 100;
       &__content {
         font-size: 0.65rem;
         text-align: center;
         padding: 5px;
         border-radius: 4px;
-        background-color: rgba(255, 255, 255, 0.3);
+        background-color: rgba(255, 255, 255, 0.144);
         width: 50px;
         margin: auto;
       }
     }
 
     &__navigate {
-      position: absolute;
-      bottom: 5px;
+      position: fixed; // fixed positioning allows us to pan on the page and keep these elements static.
+      bottom: 0px;
       width: 100%;
       margin: auto;
       display: flex;
       justify-content: space-around;
       align-items: center;
-
+      z-index: 100; // this also keeps things on top while panning.
+      background-color: #405a65; // same with this coloring. Since this is all compiled down, I don't know of any easy way to change this via props after webpack.
       &__arrow {
         font-size: 2.5em;
-        padding: 7px;
         margin: 10px;
         width: 100px;
         margin: auto;
         text-align: center;
       }
     }
+    &__zoom_container {
+      position: fixed;
+      bottom: 60px;
+      right: 15px;
+      background-color: rgba(0, 0, 0, 0.9); //slightly transparent to look good.
+      z-index: 101;
+      flex: 1;
+      justify-content: center;
 
+      &__button {
+        font-size: 2.5em;
+        margin: 5;
+        width: 50px;
+        text-align: center;
+      }
+    }
+
+    &__load {
+      margin-top: 1em;
+      color: white;
+    }
 
     &__document {
-      margin: 0;
+      margin: auto;
+      padding-top: 40px; // prevent the doc from getting hidden behind our colored navigation and page numbers
+      padding-bottom: 50px;
       .react-pdf {
         &__Document span {
           display: flex;
@@ -67,14 +79,10 @@ body {
         }
 
         &__Page {
-          width: 100%;
-          display: none;
-
+          display: block; //display our page, has a canvas element and a bunch o divs with our text n stuff
           canvas {
-            max-width: 100%;
-            height: auto !important;
+            margin: auto; // this centers our canvas in the page
           }
-
           &__annotations {
             display: none;
           }

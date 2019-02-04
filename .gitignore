@@ -56,5 +56,5 @@ typings/
 
 # dotenv environment variables file
 .env
-.expo
+.expo/
 react-pdf/dist

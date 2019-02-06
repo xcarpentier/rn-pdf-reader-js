@@ -178,7 +178,7 @@ class PdfReader extends Component<Props, State> {
 
     if (ready && data && ios) {
       return (
-        <View style={{ ...styles.container, ...style}}>
+        <View style={[styles.container, style]}>
           <WebView
             originWhitelist={['http://*', 'https://*', 'file://*', 'data:*']}
             style={styles.webview}
@@ -190,7 +190,7 @@ class PdfReader extends Component<Props, State> {
 
     if (ready && data && android) {
       return (
-        <View style={{ ...styles.container, ...style}}>
+        <View style={[styles.container, style]}>
           <WebView
             allowFileAccess
             style={styles.webview}

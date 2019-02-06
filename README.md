@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
 * source: `Object`
   * uri?: `string` - can be local or served on the web (ie. start withs `https://` or `file://`)
   * base64?: `string` - should start with `data`
+  * style: `object` - style props to override default container style
 
 ## Requirements
 * Use it into Expo app (from expo client, Standalone app or ExpoKit app).

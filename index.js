@@ -111,6 +111,7 @@ type Props = {
   source: {
     uri?: string,
     base64?: string,
+    style: object
   },
 }
 
@@ -173,10 +174,11 @@ class PdfReader extends Component<Props, State> {
 
   render() {
     const { ready, data, ios, android } = this.state
+    const { style } = this.props
 
     if (ready && data && ios) {
       return (
-        <View style={styles.container}>
+        <View style={{ ...styles.container, ...style}}>
           <WebView
             originWhitelist={['http://*', 'https://*', 'file://*', 'data:*']}
             style={styles.webview}
@@ -188,7 +190,7 @@ class PdfReader extends Component<Props, State> {
 
     if (ready && data && android) {
       return (
-        <View style={styles.container}>
+        <View style={{ ...styles.container, ...style}}>
           <WebView
             allowFileAccess
             style={styles.webview}

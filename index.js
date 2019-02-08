@@ -110,9 +110,9 @@ const styles = StyleSheet.create({
 type Props = {
   source: {
     uri?: string,
-    base64?: string,
-    style: object
+    base64?: string
   },
+  style: object
 }
 
 type State = {

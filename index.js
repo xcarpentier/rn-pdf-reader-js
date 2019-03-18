@@ -132,7 +132,7 @@ class PdfReader extends Component<Props, State> {
       const android = Platform.OS === 'android'
 
       this.setState({ ios, android })
-
+      let ready = false
       let data = undefined
       if (
         source.uri &&
@@ -142,8 +142,10 @@ class PdfReader extends Component<Props, State> {
           source.uri.startsWith('content'))
       ) {
         data = await fetchPdfAsync(source.uri)
+        ready= !!data
       } else if (source.base64 && source.base64.startsWith('data')) {
         data = source.base64
+        ready = true
       } else if (ios) {
         data = source.uri
       } else {
@@ -155,7 +157,7 @@ class PdfReader extends Component<Props, State> {
         await writeWebViewReaderFileAsync(data)
       }
 
-      this.setState({ ready: !!data, data })
+      this.setState({ ready, data })
     } catch (error) {
       alert('Sorry, an error occurred.')
       console.error(error)
@@ -176,9 +178,10 @@ class PdfReader extends Component<Props, State> {
     const { ready, data, ios, android } = this.state
     const { style } = this.props
 
-    if (ready && data && ios) {
+    if (data && ios) {
       return (
         <View style={[styles.container, style]}>
+          {!ready && <Loader />}
           <WebView
             originWhitelist={['http://*', 'https://*', 'file://*', 'data:*']}
             style={styles.webview}

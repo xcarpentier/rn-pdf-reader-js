@@ -183,6 +183,7 @@ class PdfReader extends Component<Props, State> {
         <View style={[styles.container, style]}>
           {!ready && <Loader />}
           <WebView
+            onLoad={()=>this.setState({ready: true})}
             originWhitelist={['http://*', 'https://*', 'file://*', 'data:*']}
             style={styles.webview}
             source={{ uri: data }}

@@ -112,7 +112,10 @@ type Props = {
     uri?: string,
     base64?: string
   },
-  style: object
+  style: object,
+  webviewStyle: object,
+  onLoad: func,
+  noLoader: boolean
 }
 
 type State = {
@@ -126,6 +129,7 @@ class PdfReader extends Component<Props, State> {
   state = { ready: false, android: false, ios: false, data: undefined }
 
   async init() {
+    const { onLoad } = this.props;
     try {
       const { source } = this.props
       const ios = Platform.OS === 'ios'
@@ -157,6 +161,10 @@ class PdfReader extends Component<Props, State> {
         await writeWebViewReaderFileAsync(data)
       }
 
+      if(onLoad && ready === true) {
+        onLoad();
+      }
+
       this.setState({ ready, data })
     } catch (error) {
       alert('Sorry, an error occurred.')
@@ -176,16 +184,21 @@ class PdfReader extends Component<Props, State> {
 
   render() {
     const { ready, data, ios, android } = this.state
-    const { style } = this.props
+    const { style, webviewStyle, onLoad, noLoader } = this.props
 
     if (data && ios) {
       return (
         <View style={[styles.container, style]}>
-          {!ready && <Loader />}
+          {!noLoader && !ready && <Loader />}
           <WebView
-            onLoad={()=>this.setState({ready: true})}
+            onLoad={()=>{
+              this.setState({ready: true});
+              if(onLoad) {
+                onLoad();
+              }
+            }}
             originWhitelist={['http://*', 'https://*', 'file://*', 'data:*']}
-            style={styles.webview}
+            style={[styles.webview, webviewStyle]}
             source={{ uri: data }}
           />
         </View>
@@ -196,8 +209,9 @@ class PdfReader extends Component<Props, State> {
       return (
         <View style={[styles.container, style]}>
           <WebView
+            onLoad={onLoad}
             allowFileAccess
-            style={styles.webview}
+            style={[styles.webview, webviewStyle]}
             source={{ uri: htmlPath }}
             mixedContentMode="always"
             scrollEnabled

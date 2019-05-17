@@ -57,6 +57,9 @@ const styles = StyleSheet.create({
   * uri?: `string` - can be local or served on the web (ie. start withs `https://` or `file://`)
   * base64?: `string` - should start with `data`
 * style: `object` - style props to override default container style
+* webviewStyle: `object` - style props to override default WebView style
+* onLoad: `func` - callback that runs after WebView is loaded
+* noLoader: `boolean` - show/hide the ActivityIndicator. Default is false
 
 ## Requirements
 * Use it into Expo app (from expo client, Standalone app or ExpoKit app).

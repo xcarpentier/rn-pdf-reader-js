@@ -211,6 +211,7 @@ class PdfReader extends Component<Props, State> {
           <WebView
             onLoad={onLoad}
             allowFileAccess
+            originWhitelist={['http://*', 'https://*', 'file://*', 'data:*']}
             style={[styles.webview, webviewStyle]}
             source={{ uri: htmlPath }}
             mixedContentMode="always"

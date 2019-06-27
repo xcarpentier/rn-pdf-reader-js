@@ -80,3 +80,7 @@ const styles = StyleSheet.create({
 ## FAQ
 - [Why the component doesn't render PDF?](https://github.com/xcarpentier/rn-pdf-reader-js/issues/15#issuecomment-397306743)
 
+## Hire an expert!
+Looking for a ReactNative freelance expert with more than 12 years experience? Contact me from my [website](https://xaviercarpentier.com)!
+
+

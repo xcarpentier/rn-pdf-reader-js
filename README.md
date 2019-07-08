@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
 ## Props
 * source: `Object`
   * uri?: `string` - can be local or served on the web (ie. start withs `https://` or `file://`)
-  * base64?: `string` - should start with `data`
+  * base64?: `string` - should start with `data:application/pdf;base64,`. A base64 encoded pdf file tends to start with `JVBERi0xL` so your complete string should look soemthing like this: ``data:application/pdf;base64,JVBERi0xL...`
 * style: `object` - style props to override default container style
 * webviewStyle: `object` - style props to override default WebView style
 * onLoad: `func` - callback that runs after WebView is loaded

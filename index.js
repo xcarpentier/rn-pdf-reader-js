@@ -184,7 +184,7 @@ class PdfReader extends Component<Props, State> {
 
   render() {
     const { ready, data, ios, android } = this.state
-    const { style, webviewStyle, onLoad, noLoader } = this.props
+    const { style, webviewStyle, onLoad, noLoader, onLoadEnd, onError  } = this.props
 
     if (data && ios) {
       return (
@@ -210,6 +210,8 @@ class PdfReader extends Component<Props, State> {
         <View style={[styles.container, style]}>
           <WebView
             onLoad={onLoad}
+            onLoadEnd={onLoadEnd}
+            onError={onError}
             allowFileAccess
             originWhitelist={['http://*', 'https://*', 'file://*', 'data:*']}
             style={[styles.webview, webviewStyle]}

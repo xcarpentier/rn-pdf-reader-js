@@ -15,10 +15,6 @@
   <a href="https://exp.host/@xcarpentier/rn-pdf-reader-example">💥 DEMO 💥</a>
 </p>
 
-## Next version
-
-`rn-pdf-reader-js@0.3.0-beta-0`
-
 ## Read a PDF just with JS (no native libs needed)
 
 ## Limitations

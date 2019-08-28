@@ -69,12 +69,12 @@ function readAsTextAsync(mediaBlob: Blob): Promise<string> {
   })
 }
 
-async function fetchPdfAsync(url: string): Promise<string> {
-  const mediaBlob = await urlToBlob(url)
+async function fetchPdfAsync(source: Source): Promise<string> {
+  const mediaBlob = await urlToBlob(source)
   return readAsTextAsync(mediaBlob)
 }
 
-async function urlToBlob(url) {
+async function urlToBlob(source: Source) {
   return new Promise((resolve, reject) => {
     var xhr = new XMLHttpRequest()
     xhr.onerror = reject
@@ -83,7 +83,15 @@ async function urlToBlob(url) {
         resolve(xhr.response)
       }
     }
-    xhr.open('GET', url)
+
+    xhr.open('GET', source.uri)
+
+    if (source.headers && Object.keys(source.headers).length > 0) {
+      Object.keys(source.headers).forEach((key) => {
+        xhr.setRequestHeader(key, source.headers[key]);
+      });
+    }
+
     xhr.responseType = 'blob'
     xhr.send()
   })
@@ -107,11 +115,14 @@ const styles = StyleSheet.create({
   },
 })
 
+type Source = {
+  uri?: string,
+  base64?: string,
+  headers: { [key: string]: string }
+}
+
 type Props = {
-  source: {
-    uri?: string,
-    base64?: string
-  },
+  source: Source,
   style: object,
   webviewStyle: object,
   onLoad: func,
@@ -145,7 +156,7 @@ class PdfReader extends Component<Props, State> {
           source.uri.startsWith('file') ||
           source.uri.startsWith('content'))
       ) {
-        data = await fetchPdfAsync(source.uri)
+        data = await fetchPdfAsync(source)
         ready= !!data
       } else if (source.base64 && source.base64.startsWith('data')) {
         data = source.base64

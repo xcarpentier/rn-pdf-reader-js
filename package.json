@@ -32,7 +32,8 @@
   },
   "dependencies": {
     "buffer": "5.1.0",
-    "js-base64": "2.4.5"
+    "js-base64": "2.4.5",
+    "react-native-webview": "5.12.0"
   },
   "devDependencies": {
     "crypto": "1.0.1",

@@ -1,14 +1,14 @@
 // @flow
 import React, { Component } from 'react'
 import {
-  WebView,
   View,
   ActivityIndicator,
   Platform,
   StyleSheet,
 } from 'react-native'
-import { FileSystem } from 'expo'
-import { Constants } from 'expo'
+import { WebView } from 'react-native-webview'
+import * as FileSystem from 'expo-file-system'
+import Constants from 'expo-constants'
 
 const {
   cacheDirectory,

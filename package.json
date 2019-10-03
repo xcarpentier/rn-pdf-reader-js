@@ -24,8 +24,11 @@
   },
   "peerDependencies": {
     "expo": "*",
+    "expo-constants": "*",
+    "expo-file-system": "*",
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-webview": "*"
   },
   "dependencies": {
     "buffer": "5.1.0",

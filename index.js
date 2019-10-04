@@ -7,17 +7,10 @@ import {
   StyleSheet,
 } from 'react-native'
 import { WebView } from 'react-native-webview'
-import * as FileSystem from 'expo-file-system'
 import Constants from 'expo-constants'
 
-const {
-  cacheDirectory,
-  writeAsStringAsync,
-  deleteAsync,
-  getInfoAsync,
-} = FileSystem
-
 function viewerHtml(base64: string): string {
+  const bundleContainer = require('./bundleContainer')
   return `
  <!DOCTYPE html>
  <html>
@@ -29,32 +22,17 @@ function viewerHtml(base64: string): string {
    <body>
      <div id="file" data-file="${base64}"></div>
      <div id="react-container"></div>
-     <script type="text/javascript" src="bundle.js"></script>
+     <script type="text/javascript">${bundleContainer.getBundle()}</script>
    </body>
  </html>
 `
-}
-const bundleJsPath = `${cacheDirectory}bundle.js`
-const htmlPath = `${cacheDirectory}index.html`
-
-async function writeWebViewReaderFileAsync(data: string): Promise<*> {
-  const { exist, md5 } = await getInfoAsync(bundleJsPath, { md5: true })
-  const bundleContainer = require('./bundleContainer')
-  if (!exist || bundleContainer.getBundleMd5() !== md5) {
-    await writeAsStringAsync(bundleJsPath, bundleContainer.getBundle())
-  }
-  await writeAsStringAsync(htmlPath, viewerHtml(data))
-}
-
-export async function removeFilesAsync(): Promise<*> {
-  await deleteAsync(htmlPath)
 }
 
 function readAsTextAsync(mediaBlob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
       const reader = new FileReader()
-      reader.onloadend = e => {
+      reader.onloadend = () => {
         if (typeof reader.result === 'string') {
           return resolve(reader.result)
         }
@@ -168,10 +146,6 @@ class PdfReader extends Component<Props, State> {
         return
       }
 
-      if (android) {
-        await writeWebViewReaderFileAsync(data)
-      }
-
       if(onLoad && ready === true) {
         onLoad();
       }
@@ -185,12 +159,6 @@ class PdfReader extends Component<Props, State> {
 
   componentDidMount() {
     this.init()
-  }
-
-  componentWillUnmount() {
-    if (this.state.android) {
-      removeFilesAsync()
-    }
   }
 
   render() {
@@ -226,10 +194,9 @@ class PdfReader extends Component<Props, State> {
             allowFileAccess
             originWhitelist={['http://*', 'https://*', 'file://*', 'data:*']}
             style={[styles.webview, webviewStyle]}
-            source={{ uri: htmlPath }}
+            source={{ html: viewerHtml(data) }}
             mixedContentMode="always"
             scrollEnabled
-            height="100vh"
           />
         </View>
       )

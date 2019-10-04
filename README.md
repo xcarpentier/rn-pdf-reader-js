@@ -18,28 +18,31 @@
 ## Read a PDF just with JS (no native libs needed)
 
 ## Limitations
+
 - **Display file only on full screen.**
-- **Embeded images binary are not display (yet) in Android** 
+- **Embeded images binary are not display (yet) in Android**
 
 [PRs are welcome...](https://github.com/xcarpentier/rn-pdf-reader-js/pulls)
 
 ## Example
 
 ```javascript
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import PDFReader from 'rn-pdf-reader-js';
-import Constants from 'expo-constants';
+import React from 'react'
+import { StyleSheet, View } from 'react-native'
+import PDFReader from 'rn-pdf-reader-js'
+import Constants from 'expo-constants'
 
 export default class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
         <PDFReader
-          source={{ uri: "http://gahp.net/wp-content/uploads/2017/09/sample.pdf" }}
+          source={{
+            uri: 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf',
+          }}
         />
       </View>
-    );
+    )
   }
 }
 
@@ -49,31 +52,41 @@ const styles = StyleSheet.create({
     paddingTop: Constants.statusBarHeight,
     backgroundColor: '#ecf0f1',
   },
-});
+})
 ```
 
 ## Props
-* source: `Object`
-  * uri?: `string` - can be local or served on the web (ie. start withs `https://` or `file://`)
-  * base64?: `string` - should start with `data`
-* style: `object` - style props to override default container style
+
+- source: `Object`
+  - uri?: `string` - can be local or served on the web (ie. start withs `https://` or `file://`)
+  - base64?: `string` - should start with `data:application/pdf;base64,`. A base64 encoded pdf file tends to start with `JVBERi0xL` so your complete string should look soemthing like this: `data:application/pdf;base64,JVBERi0xL...`
+- style: `object` - style props to override default container style
+- webviewStyle: `object` - style props to override default WebView style
+- onLoad: `func` - callback that runs after WebView is loaded
+- noLoader: `boolean` - show/hide the ActivityIndicator. Default is false
 
 ## Requirements
-* Use it into Expo app (from expo client, Standalone app or ExpoKit app).
-* Because we need to have access to `Expo.FileSystem`
-* Only React-Native 0.54+ support, Expo SDK 27
+
+- Use it into Expo app (from expo client, Standalone app or ExpoKit app).
+- Because we need to have access to `Expo.FileSystem`
+- Only React-Native 0.54+ support, Expo SDK 27
 
 ## Features
-* **For Android, use react-pdf / pdfjs in the webview**
-* For iOS devices, display file directly to the WebView
+
+- **For Android, use react-pdf / pdfjs in the webview**
+- For iOS devices, display file directly to the WebView
 
 ## What rn-pdf-reader-js use?
 
-* react-pdf (pdf.js)
-* WebView
-* Expo FileSystem API
-* Base64
+- react-pdf (pdf.js)
+- WebView
+- Expo FileSystem API
+- Base64
 
 ## FAQ
+
 - [Why the component doesn't render PDF?](https://github.com/xcarpentier/rn-pdf-reader-js/issues/15#issuecomment-397306743)
 
+## Hire an expert!
+
+Looking for a ReactNative freelance expert with more than 12 years experience? Contact me from my [website](https://xaviercarpentier.com)!

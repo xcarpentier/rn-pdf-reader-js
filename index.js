@@ -168,7 +168,6 @@ class PdfReader extends Component<Props, State> {
     if (data && ios) {
       return (
         <View style={[styles.container, style]}>
-          {!noLoader && !ready && <Loader />}
           <WebView
             onLoad={()=>{
               this.setState({ready: true});
@@ -202,7 +201,7 @@ class PdfReader extends Component<Props, State> {
       )
     }
 
-    return <Loader />
+    return (<View style={[styles.container, style]}>{!noLoader && !ready && <Loader />}</View>)
   }
 }
 

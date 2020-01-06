@@ -6,3 +6,9 @@ app.json
 babel.config.js
 metro.config.js
 app.json
+.expo
+src
+.prettierrc
+tsconfig.json
+tslint.json
+.github/FUNDING.yml

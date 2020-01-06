@@ -1,8 +1,8 @@
 {
   "name": "rn-pdf-reader-js",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "PDF reader for Expo",
-  "main": "lib/index.js",
+  "main": "node_modules/expo/AppEntry.js",
   "types": "lib/index.d.ts",
   "author": "Xavier Carpentier <xcapetir@gmail.com> (https://xaviercarpentier.com/)",
   "license": "MIT",
@@ -33,19 +33,16 @@
     "url": "git+https://github.com/xcarpentier/rn-pdf-reader-js.git"
   },
   "peerDependencies": {
-    "expo": "*",
-    "expo-constants": "*",
-    "expo-file-system": "*",
-    "react": "*",
+    "expo": ">= 33.0.x < 37.0.x",
+    "expo-constants": ">= 5.0.0 < 9.x",
+    "expo-file-system": ">= 5.0.0 < 9.x",
+    "react": "16.x",
     "react-native": "*",
-    "react-native-webview": "*"
+    "react-native-webview": ">= 7.0.5 < 8.x"
   },
   "dependencies": {
     "buffer": "5.1.0",
-    "expo-constants": "~8.0.0",
-    "expo-file-system": "~8.0.0",
-    "js-base64": "2.4.5",
-    "react-native-webview": "7.4.3"
+    "js-base64": "2.4.5"
   },
   "devDependencies": {
     "@types/js-base64": "2.3.1",
@@ -57,7 +54,10 @@
     "expo": "^36.0.2",
     "json": "^9.0.6",
     "react": "16.9.0",
+    "expo-constants": "~8.0.0",
+    "expo-file-system": "~8.0.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.1.tar.gz",
+    "react-native-webview": "7.4.3",
     "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "3.7.4"

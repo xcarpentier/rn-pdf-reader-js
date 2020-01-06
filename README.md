@@ -16,7 +16,15 @@
   <a href="https://exp.host/@xcarpentier/rn-pdf-reader-example">💥 DEMO 💥</a>
 </p>
 
-## Read a PDF just with JS (no native libs needed)
+# Read a PDF just with JS (no native libs needed)
+
+## Requirements
+
+- 👉**Install react-native-webview** on your own!
+- 👉**Install expo-file-system** on your own!
+- 👉**Install expo-constants** on your own!
+- Use it into Expo app (from expo client, Standalone app or ExpoKit app).
+- Only React-Native 0.60+ support, **Expo SDK 33-36+**
 
 ## Limitations
 
@@ -28,9 +36,8 @@
 
 ```tsx
 import * as React from 'react'
-import { StyleSheet, View } from 'react-native'
+import { View } from 'react-native'
 import PDFReader from 'rn-pdf-reader-js'
-import Constants from 'expo-constants'
 
 export default class App extends React.Component {
   render() {
@@ -64,11 +71,6 @@ interface Props {
   onError?(): void // callback that runs when WebView is on error
 }
 ```
-
-## Requirements
-
-- Use it into Expo app (from expo client, Standalone app or ExpoKit app).
-- Only React-Native 0.60+ support, **Expo SDK 36**
 
 ## Features
 

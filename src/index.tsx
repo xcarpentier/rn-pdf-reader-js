@@ -1,11 +1,5 @@
-// @flow
-import React, { Component } from 'react'
-import {
-  View,
-  ActivityIndicator,
-  Platform,
-  StyleSheet,
-} from 'react-native'
+import * as React from 'react'
+import { View, ActivityIndicator, Platform, StyleSheet } from 'react-native'
 import { WebView } from 'react-native-webview'
 import * as FileSystem from 'expo-file-system'
 import Constants from 'expo-constants'
@@ -37,16 +31,16 @@ function viewerHtml(base64: string): string {
 const bundleJsPath = `${cacheDirectory}bundle.js`
 const htmlPath = `${cacheDirectory}index.html`
 
-async function writeWebViewReaderFileAsync(data: string): Promise<*> {
-  const { exist, md5 } = await getInfoAsync(bundleJsPath, { md5: true })
+async function writeWebViewReaderFileAsync(data: string): Promise<void> {
+  const { exists, md5 } = await getInfoAsync(bundleJsPath, { md5: true })
   const bundleContainer = require('./bundleContainer')
-  if (!exist || bundleContainer.getBundleMd5() !== md5) {
+  if (!exists || bundleContainer.getBundleMd5() !== md5) {
     await writeAsStringAsync(bundleJsPath, bundleContainer.getBundle())
   }
   await writeAsStringAsync(htmlPath, viewerHtml(data))
 }
 
-export async function removeFilesAsync(): Promise<*> {
+export async function removeFilesAsync(): Promise<void> {
   await deleteAsync(htmlPath)
 }
 
@@ -54,7 +48,7 @@ function readAsTextAsync(mediaBlob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
       const reader = new FileReader()
-      reader.onloadend = e => {
+      reader.onloadend = (_e: ProgressEvent<FileReader>) => {
         if (typeof reader.result === 'string') {
           return resolve(reader.result)
         }
@@ -69,14 +63,20 @@ function readAsTextAsync(mediaBlob: Blob): Promise<string> {
   })
 }
 
-async function fetchPdfAsync(source: Source): Promise<string> {
-  const mediaBlob = await urlToBlob(source)
-  return readAsTextAsync(mediaBlob)
+async function fetchPdfAsync(source: Source): Promise<string | undefined> {
+  const mediaBlob: Blob | undefined = await urlToBlob(source)
+  if (mediaBlob) {
+    return readAsTextAsync(mediaBlob)
+  }
+  return undefined
 }
 
-async function urlToBlob(source: Source) {
+async function urlToBlob(source: Source): Promise<Blob | undefined> {
+  if (!source.uri) {
+    return undefined
+  }
   return new Promise((resolve, reject) => {
-    var xhr = new XMLHttpRequest()
+    const xhr = new XMLHttpRequest()
     xhr.onerror = reject
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4) {
@@ -84,12 +84,12 @@ async function urlToBlob(source: Source) {
       }
     }
 
-    xhr.open('GET', source.uri)
+    xhr.open('GET', source.uri!)
 
     if (source.headers && Object.keys(source.headers).length > 0) {
-      Object.keys(source.headers).forEach((key) => {
-        xhr.setRequestHeader(key, source.headers[key]);
-      });
+      Object.keys(source.headers).forEach(key => {
+        xhr.setRequestHeader(key, source.headers![key])
+      })
     }
 
     xhr.responseType = 'blob'
@@ -99,7 +99,7 @@ async function urlToBlob(source: Source) {
 
 const Loader = () => (
   <View style={{ flex: 1, justifyContent: 'center' }}>
-    <ActivityIndicator size="large" />
+    <ActivityIndicator size='large' />
   </View>
 )
 
@@ -107,40 +107,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: Constants.statusBarHeight,
-    backgroundColor: '#ecf0f1',
   },
   webview: {
     flex: 1,
-    backgroundColor: 'rgb(82, 86, 89)',
   },
 })
 
-type Source = {
-  uri?: string,
-  base64?: string,
-  headers: { [key: string]: string }
+interface Source {
+  uri?: string
+  base64?: string
+  headers?: { [key: string]: string }
 }
 
-type Props = {
-  source: Source,
-  style: object,
-  webviewStyle: object,
-  onLoad: func,
-  noLoader: boolean
+interface Props {
+  source: Source
+  style?: View['props']['style']
+  webviewStyle?: WebView['props']['style']
+  noLoader?: boolean
+  onLoad?(): void
+  onLoadEnd?(): void
+  onError?(): void
 }
 
-type State = {
-  ready: boolean,
-  android: boolean,
-  ios: boolean,
-  data?: string,
+interface State {
+  ready: boolean
+  android: boolean
+  ios: boolean
+  data?: string
 }
 
-class PdfReader extends Component<Props, State> {
+class PdfReader extends React.Component<Props, State> {
   state = { ready: false, android: false, ios: false, data: undefined }
 
-  async init() {
-    const { onLoad } = this.props;
+  init = async () => {
+    const { onLoad } = this.props
     try {
       const { source } = this.props
       const ios = Platform.OS === 'ios'
@@ -148,7 +148,7 @@ class PdfReader extends Component<Props, State> {
 
       this.setState({ ios, android })
       let ready = false
-      let data = undefined
+      let data
       if (
         source.uri &&
         android &&
@@ -157,7 +157,7 @@ class PdfReader extends Component<Props, State> {
           source.uri.startsWith('content'))
       ) {
         data = await fetchPdfAsync(source)
-        ready= !!data
+        ready = !!data
       } else if (source.base64 && source.base64.startsWith('data')) {
         data = source.base64
         ready = true
@@ -168,17 +168,17 @@ class PdfReader extends Component<Props, State> {
         return
       }
 
-      if (android) {
+      if (android && data) {
         await writeWebViewReaderFileAsync(data)
       }
 
-      if(onLoad && ready === true) {
-        onLoad();
+      if (onLoad && ready === true) {
+        onLoad()
       }
 
       this.setState({ ready, data })
     } catch (error) {
-      alert('Sorry, an error occurred.')
+      alert(`Sorry, an error occurred. ${error.message}`)
       console.error(error)
     }
   }
@@ -195,22 +195,29 @@ class PdfReader extends Component<Props, State> {
 
   render() {
     const { ready, data, ios, android } = this.state
-    const { style, webviewStyle, onLoad, noLoader, onLoadEnd, onError  } = this.props
+    const {
+      style,
+      webviewStyle,
+      onLoad,
+      noLoader,
+      onLoadEnd,
+      onError,
+    } = this.props
 
     if (data && ios) {
       return (
         <View style={[styles.container, style]}>
           {!noLoader && !ready && <Loader />}
           <WebView
-            onLoad={()=>{
-              this.setState({ready: true});
-              if(onLoad) {
-                onLoad();
+            onLoad={() => {
+              this.setState({ ready: true })
+              if (onLoad) {
+                onLoad()
               }
             }}
             originWhitelist={['http://*', 'https://*', 'file://*', 'data:*']}
             style={[styles.webview, webviewStyle]}
-            source={{ uri: data }}
+            source={{ uri: data! }}
           />
         </View>
       )
@@ -227,9 +234,8 @@ class PdfReader extends Component<Props, State> {
             originWhitelist={['http://*', 'https://*', 'file://*', 'data:*']}
             style={[styles.webview, webviewStyle]}
             source={{ uri: htmlPath }}
-            mixedContentMode="always"
+            mixedContentMode='always'
             scrollEnabled
-            height="100vh"
           />
         </View>
       )

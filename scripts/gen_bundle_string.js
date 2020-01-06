@@ -1,17 +1,23 @@
 #!/usr/bin/env node
 
-const fs = require('fs')
-const path = require('path')
-const crypto = require('crypto')
-const encoding = { encoding: 'utf8' }
-const originPath = path.join(__dirname, '../react-pdf/dist/bundle.js')
-const destinationPath = path.join(__dirname, '../bundleContainer.android.js')
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
+const encoding = { encoding: "utf8" };
+const originPath = path.join(__dirname, "../react-pdf/dist/bundle.js");
+const destinationPath = path.join(
+  __dirname,
+  "../src/bundleContainer.android.ts"
+);
 
-const read = path => fs.readFileSync(path, encoding)
-const toBase64 = str => Buffer.from(str).toString('base64')
+const read = path => fs.readFileSync(path, encoding);
+const toBase64 = str => Buffer.from(str).toString("base64");
 
-const bundleString = read(originPath)
-const md5 = crypto.createHash('md5').update(bundleString).digest("hex")
+const bundleString = read(originPath);
+const md5 = crypto
+  .createHash("md5")
+  .update(bundleString)
+  .digest("hex");
 
 // TODO: calculate md5 (ie. update new version)
 const bundleContainerFileContent = `
@@ -23,8 +29,8 @@ export function getBundle() {
 export function getBundleMd5() {
   return '${md5}'
 }
-`
-if(fs.existsSync(destinationPath)) {
-  fs.unlinkSync(destinationPath)
+`;
+if (fs.existsSync(destinationPath)) {
+  fs.unlinkSync(destinationPath);
 }
-fs.writeFileSync(destinationPath, bundleContainerFileContent, encoding)
+fs.writeFileSync(destinationPath, bundleContainerFileContent, encoding);

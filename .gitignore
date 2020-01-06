@@ -58,3 +58,4 @@ typings/
 .env
 .expo/
 react-pdf/dist
+lib

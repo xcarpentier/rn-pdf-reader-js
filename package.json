@@ -2,12 +2,21 @@
   "name": "rn-pdf-reader-js",
   "version": "0.3.0",
   "description": "PDF reader for Expo",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "node_modules/expo/AppEntry.js",
+  "types": "lib/index.d.ts",
   "author": "Xavier Carpentier <xcapetir@gmail.com> (https://xaviercarpentier.com/)",
   "license": "MIT",
   "scripts": {
-    "bundle": "./scripts/gen_bundle_string.js"
+    "start": "yarn config:dev && expo start",
+    "tsc": "node_modules/.bin/tsc --noEmit",
+    "bundle": "./scripts/gen_bundle_string.js",
+    "build": "rm -rf lib/ && node_modules/.bin/tsc && yarn bundle",
+    "config:dev": "json -I -f package.json -e 'this.main=\"node_modules/expo/AppEntry.js\"'",
+    "config:npm": "json -I -f package.json -e 'this.main=\"lib/index.js\"'",
+    "lint": "tslint --project .",
+    "verify": "yarn lint && yarn build",
+    "prepublishOnly": "yarn verify && yarn config:npm",
+    "cleaning": "rm -rf node_modules && rm -f yarn.lock && yarn cache clean && yarn install && watchman watch-del-all && rm -fr $TMPDIR/react-*"
   },
   "keywords": [
     "React-Native",
@@ -33,10 +42,23 @@
   },
   "dependencies": {
     "buffer": "5.1.0",
-    "js-base64": "2.4.5"
+    "expo-constants": "~8.0.0",
+    "expo-file-system": "~8.0.0",
+    "js-base64": "2.4.5",
+    "react-native-webview": "7.4.3"
   },
   "devDependencies": {
+    "@types/js-base64": "2.3.1",
+    "@types/react": "16.9.17",
+    "@types/react-native": "0.60.28",
+    "babel-preset-expo": "^8.0.0",
     "crypto": "1.0.1",
-    "flow-bin": "0.73.0"
+    "expo": "^36.0.2",
+    "json": "^9.0.6",
+    "react": "16.9.0",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.1.tar.gz",
+    "tslint": "^5.20.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "3.7.4"
   }
 }

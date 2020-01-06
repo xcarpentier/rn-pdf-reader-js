@@ -1,3 +1,8 @@
 example
 scripts
 react-pdf
+App.tsx
+app.json
+babel.config.js
+metro.config.js
+app.json

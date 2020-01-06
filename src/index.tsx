@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { View, ActivityIndicator, Platform, StyleSheet } from 'react-native'
 import { WebView } from 'react-native-webview'
-import * as FileSystem from 'expo-file-system'
 import Constants from 'expo-constants'
+import * as FileSystem from 'expo-file-system'
 
 const {
   cacheDirectory,
@@ -28,9 +28,9 @@ function viewerHtml(base64: string): string {
  </html>
 `
 }
+
 const bundleJsPath = `${cacheDirectory}bundle.js`
 const htmlPath = `${cacheDirectory}index.html`
-
 async function writeWebViewReaderFileAsync(data: string): Promise<void> {
   const { exists, md5 } = await getInfoAsync(bundleJsPath, { md5: true })
   const bundleContainer = require('./bundleContainer')
@@ -210,7 +210,6 @@ class PdfReader extends React.Component<Props, State> {
     if (data && ios) {
       return (
         <View style={[styles.container, style]}>
-          {!noLoader && !ready && <Loader />}
           <WebView
             onLoad={() => {
               this.setState({ ready: true })
@@ -241,7 +240,11 @@ class PdfReader extends React.Component<Props, State> {
       )
     }
 
-    return <Loader />
+    return (
+      <View style={[styles.container, style]}>
+        {!noLoader && !ready && <Loader />}
+      </View>
+    )
   }
 }
 

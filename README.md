@@ -68,7 +68,6 @@ interface Props {
 ## Requirements
 
 - Use it into Expo app (from expo client, Standalone app or ExpoKit app).
-- Because we need to have access to `Expo.FileSystem`
 - Only React-Native 0.60+ support, **Expo SDK 36**
 
 ## Features
@@ -80,7 +79,6 @@ interface Props {
 
 - react-pdf (pdf.js)
 - WebView
-- Expo FileSystem API
 - Base64
 
 ## FAQ

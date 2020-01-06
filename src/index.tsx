@@ -106,7 +106,7 @@ const Loader = () => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Constants.statusBarHeight,
+    paddingTop: Platform.OS === 'ios' ? Constants.statusBarHeight : 0,
   },
   webview: {
     flex: 1,
@@ -195,6 +195,7 @@ class PdfReader extends React.Component<Props, State> {
 
   render() {
     const { ready, data, ios, android } = this.state
+
     const {
       style,
       webviewStyle,
@@ -203,6 +204,8 @@ class PdfReader extends React.Component<Props, State> {
       onLoadEnd,
       onError,
     } = this.props
+
+    const originWhitelist = ['http://*', 'https://*', 'file://*', 'data:*']
 
     if (data && ios) {
       return (
@@ -215,7 +218,7 @@ class PdfReader extends React.Component<Props, State> {
                 onLoad()
               }
             }}
-            originWhitelist={['http://*', 'https://*', 'file://*', 'data:*']}
+            {...{ originWhitelist, onLoadEnd, onError }}
             style={[styles.webview, webviewStyle]}
             source={{ uri: data! }}
           />
@@ -227,11 +230,8 @@ class PdfReader extends React.Component<Props, State> {
       return (
         <View style={[styles.container, style]}>
           <WebView
-            onLoad={onLoad}
-            onLoadEnd={onLoadEnd}
-            onError={onError}
+            {...{ originWhitelist, onLoad, onLoadEnd, onError }}
             allowFileAccess
-            originWhitelist={['http://*', 'https://*', 'file://*', 'data:*']}
             style={[styles.webview, webviewStyle]}
             source={{ uri: htmlPath }}
             mixedContentMode='always'

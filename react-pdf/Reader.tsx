@@ -1,24 +1,39 @@
-import React, { Component } from 'react'
+import * as React from 'react'
 import { render } from 'react-dom'
-import { Page, setOptions, Document } from 'react-pdf'
+import { Page, Document, pdfjs } from 'react-pdf'
 import raf, { cancel } from 'raf'
+import Down from './components/down'
 import Plus from './components/Plus'
 import Minus from './components/Minus'
-import Down from './components/down'
 import Up from './components/up'
 import './Reader.less'
 
 const ReactContainer = document.querySelector('#react-container')
 
-setOptions({
-  workerSrc:
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.305/pdf.worker.min.js',
-  disableWorker: false,
-  cMapUrl: 'https://github.com/mozilla/pdfjs-dist/raw/master/cmaps/',
-  cMapPacked: true,
-})
+const PDFJS = pdfjs as any
 
-class Reader extends Component {
+PDFJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS.version}/pdf.worker.js`
+const options = {
+  cMapUrl: `//cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS.version}/cmaps/`,
+  cMapPacked: true,
+}
+
+interface State {
+  numPages?: number
+  currentPage: number
+  ready: boolean
+  pageLoaded: boolean
+  pageRendered: boolean
+  getText: boolean
+  scale: number
+  cached?: boolean
+}
+
+interface Props {
+  file: any
+}
+
+class Reader extends React.Component<Props, State> {
   state = {
     numPages: null,
     currentPage: 1,
@@ -32,7 +47,9 @@ class Reader extends Component {
   MAX_SCALE = 2
   __zoomEvent = false
 
-  pageRefs = new Map()
+  pageRefs = new Map<number, any>()
+  pageImages = new Map<number, any>()
+  _doc: any
 
   onDocumentLoadSuccess = ({ numPages }) => {
     this.setState({ numPages })
@@ -41,9 +58,9 @@ class Reader extends Component {
   onError = error =>
     window.alert('Error while loading document! \n' + error.message)
 
-  cache = pageKey => {
-    if (!this.pageImgs.has(pageKey)) {
-      this.pageImgs.set(
+  cache = (pageKey: number) => {
+    if (!this.pageImages.has(pageKey)) {
+      this.pageImages.set(
         pageKey,
         this.pageRefs.get(pageKey).children[0].toDataURL('image/png'),
       )
@@ -65,7 +82,6 @@ class Reader extends Component {
   }
 
   zOut = () => {
-    console.log(this.state.scale)
     if (this.state.scale >= 0.75) {
       // min scale out is 0.5 and defaults @ 0.75
       this.__zoomEvent = true
@@ -76,7 +92,6 @@ class Reader extends Component {
   }
 
   zIn = () => {
-    console.log(this.state.scale)
     if (this.state.scale <= this.MAX_SCALE - 0.25) {
       this.__zoomEvent = true
       this.setState(previousState => ({
@@ -90,7 +105,7 @@ class Reader extends Component {
     if (currentPage > 1) {
       const target = currentPage - 1
       this.setState({ currentPage: target })
-      if (!this.pageImgs.has(target)) {
+      if (!this.pageImages.has(target)) {
         this.setState({
           pageLoaded: false,
           pageRendered: false,
@@ -98,6 +113,7 @@ class Reader extends Component {
         })
       }
     }
+    // @ts-ignore
     cancel(this.up)
   }
 
@@ -106,7 +122,7 @@ class Reader extends Component {
     if (currentPage < numPages) {
       const target = currentPage + 1
       this.setState({ currentPage: target })
-      if (!this.pageImgs.has(target)) {
+      if (!this.pageImages.has(target)) {
         this.setState({
           pageLoaded: false,
           pageRendered: false,
@@ -114,6 +130,7 @@ class Reader extends Component {
         })
       }
     }
+    // @ts-ignore
     cancel(this.down)
   }
 
@@ -127,22 +144,8 @@ class Reader extends Component {
     raf(this.down)
   }
 
-  renderLoader = () => (
-    <div
-      style={{
-        width: window.innerWidth,
-        height: window.innerHeight,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <p style={{ color: '#fff' }}>Loading...</p>
-    </div>
-  )
-
   renderImage = pageNumber => (
-    <img src={this.pageImgs.get(pageNumber)} style={{ width: '100%' }} />
+    <img src={this.pageImages.get(pageNumber)} style={{ width: '100%' }} />
   )
 
   onPageReadyToCache = pageStatus => {
@@ -166,7 +169,6 @@ class Reader extends Component {
         pageNumber={pageNumber}
         onLoadError={this.onError}
         onRenderError={this.onError}
-        renderAnnotations={false}
         onGetTextError={this.onError}
         onRenderSuccess={() => this.onPageReadyToCache({ pageRendered: true })}
         onGetTextSuccess={() => this.onPageReadyToCache({ getText: true })}
@@ -176,12 +178,11 @@ class Reader extends Component {
   }
 
   render() {
-    const { numPages, currentPage, cached, ready } = this.state
-    const { file } = this.props
+    const { numPages, currentPage } = this.state
     return (
-      <div className="Reader">
-        <div className="Reader__container">
-          <div className="Reader__container__document">
+      <div className='Reader'>
+        <div className='Reader__container'>
+          <div className='Reader__container__document'>
             <Document
               loading={' '}
               inputRef={ref => (this._doc = ref)}
@@ -189,30 +190,29 @@ class Reader extends Component {
               onLoadSuccess={this.onDocumentLoadSuccess}
               onLoadError={this.onError}
               onSourceError={this.onError}
+              {...{ options }}
             >
               {this.renderPage(currentPage)}
             </Document>
           </div>
 
-          {!cached && this.renderLoader()}
-
           {numPages && (
-            <div className="Reader__container__numbers">
-              <div className="Reader__container__numbers__content">
+            <div className='Reader__container__numbers'>
+              <div className='Reader__container__numbers__content'>
                 {currentPage} / {numPages}
               </div>
             </div>
           )}
 
-          <div className="Reader__container__zoom_container">
+          <div className='Reader__container__zoom_container'>
             <div
-              className="Reader__container__zoom_container__button"
+              className='Reader__container__zoom_container__button'
               onClick={this.zoomIn}
             >
               <Plus />
             </div>
             <div
-              className="Reader__container__zoom_container__button"
+              className='Reader__container__zoom_container__button'
               onClick={this.zoomOut}
             >
               <Minus />
@@ -221,7 +221,7 @@ class Reader extends Component {
 
           <div className={'Reader__container__navigate'}>
             <div
-              className="Reader__container__navigate__arrow"
+              className='Reader__container__navigate__arrow'
               style={
                 currentPage === 1 ? { color: 'rgba(255,255,255,0.2)' } : {}
               }
@@ -230,7 +230,7 @@ class Reader extends Component {
               <Up />
             </div>
             <div
-              className="Reader__container__navigate__arrow"
+              className='Reader__container__navigate__arrow'
               style={
                 currentPage === numPages
                   ? { color: 'rgba(255,255,255,0.2)' }

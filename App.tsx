@@ -6,8 +6,7 @@ export default class App extends React.Component {
     return (
       <PdfReader
         source={{
-          uri:
-            'https://www.dropbox.com/s/6it8hd9hywbx5xe/Integrationtest1%20%284%29.pdf?dl=0&raw=1',
+          uri: 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf',
         }}
       />
     )

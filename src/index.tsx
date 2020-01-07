@@ -155,41 +155,59 @@ interface Props {
 interface State {
   ready: boolean
   data?: string
+  isBase64: boolean
 }
 
 class PdfReader extends React.Component<Props, State> {
   state = {
     ready: false,
     data: undefined,
+    isBase64: false,
   }
 
   init = async () => {
     try {
       const { source, customStyle } = this.props
       let ready = false
-      let data
+      let isBase64 = false
+      let data: any
       if (
         source.uri &&
         (source.uri.startsWith('http') ||
           source.uri.startsWith('file') ||
           source.uri.startsWith('content'))
       ) {
-        data = await fetchPdfAsync(source)
-        ready = !!data
+        switch (Platform.OS) {
+          case 'android': {
+            data = await fetchPdfAsync(source)
+            ready = !!data
+            isBase64 = true
+            break
+          }
+
+          default: {
+            data = source.uri
+            ready = true
+            break
+          }
+        }
       } else if (
         source.base64 &&
         source.base64.startsWith('data:application/pdf;base64,')
       ) {
         data = source.base64
         ready = true
+        isBase64 = true
       } else {
         alert('source props is not correct')
         return
       }
 
-      await writeWebViewReaderFileAsync(data!, customStyle)
+      if (isBase64) {
+        await writeWebViewReaderFileAsync(data!, customStyle)
+      }
 
-      this.setState({ ready, data })
+      this.setState({ ready, data, isBase64 })
     } catch (error) {
       alert(`Sorry, an error occurred. ${error.message}`)
       console.error(error)
@@ -201,16 +219,19 @@ class PdfReader extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    try {
-      removeFilesAsync()
-    } catch (error) {
-      alert(`Error on removing file. ${error.message}`)
-      console.error(error)
+    const { isBase64 } = this.state
+    if (isBase64) {
+      try {
+        removeFilesAsync()
+      } catch (error) {
+        alert(`Error on removing file. ${error.message}`)
+        console.error(error)
+      }
     }
   }
 
   render() {
-    const { ready, data } = this.state
+    const { ready, data, isBase64 } = this.state
 
     const {
       style: containerStyle,
@@ -220,11 +241,12 @@ class PdfReader extends React.Component<Props, State> {
       onLoadEnd,
       onError,
       webviewProps,
+      source: { headers },
     } = this.props
 
     const originWhitelist = ['http://*', 'https://*', 'file://*', 'data:*']
     const style = [styles.webview, webviewStyle]
-    const source = { uri: htmlPath }
+    const source = isBase64 ? { uri: htmlPath } : { uri: data!, headers }
     const isAndroid = Platform.OS === 'android'
     if (ready && data) {
       return (

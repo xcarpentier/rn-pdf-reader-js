@@ -21,7 +21,8 @@ export default class App extends React.Component {
     return (
       <PdfReader
         source={{
-          uri: 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf',
+          // uri: 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf',
+          base64,
         }}
         style={{ paddingTop: 20 }}
         customStyle={{

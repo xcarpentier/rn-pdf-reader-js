@@ -65,6 +65,7 @@ interface Props {
   source: Source
   style?: View['props']['style'] // style props to override default container style
   webviewStyle?: WebView['props']['style'] // style props to override default WebView style
+  webviewProps?: WebView['props']
   noLoader?: boolean
   customStyle?: {
     readerContainer?: CSS.Properties

@@ -66,16 +66,21 @@ interface Props {
   style?: View['props']['style'] // style props to override default container style
   webviewStyle?: WebView['props']['style'] // style props to override default WebView style
   noLoader?: boolean
+  customStyle?: {
+    readerContainer?: CSS.Properties
+    readerContainerDocument?: CSS.Properties
+    readerContainerNumbers?: CSS.Properties
+    readerContainerNumbersContent?: CSS.Properties
+    readerContainerZoomContainer?: CSS.Properties
+    readerContainerZoomContainerButton?: CSS.Properties
+    readerContainerNavigate?: CSS.Properties
+    readerContainerNavigateArrow?: CSS.Properties
+  }
   onLoad?(): void // callback that runs after WebView is loaded
   onLoadEnd?(): void // callback that runs after WebView is loaded
   onError?(): void // callback that runs when WebView is on error
 }
 ```
-
-## Features
-
-- **For Android, use react-pdf / pdfjs in the webview**
-- For iOS devices, display file directly to the WebView (react-native-webview)
 
 ## What rn-pdf-reader-js use?
 

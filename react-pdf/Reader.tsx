@@ -18,66 +18,71 @@ const options = {
   cMapPacked: true,
 }
 
+interface Props {
+  file: any
+  customStyle?: {
+    readerContainer?: any
+    readerContainerDocument?: any
+    readerContainerNumbers?: any
+    readerContainerNumbersContent?: any
+    readerContainerZoomContainer?: any
+    readerContainerZoomContainerButton?: any
+    readerContainerNavigate?: any
+    readerContainerNavigateArrow?: any
+  }
+}
+
 interface State {
   numPages?: number
   currentPage: number
   ready: boolean
-  pageLoaded: boolean
-  pageRendered: boolean
-  getText: boolean
   scale: number
-  cached?: boolean
-}
-
-interface Props {
-  file: any
+  error?: any
 }
 
 class Reader extends React.Component<Props, State> {
+  static getDerivedStateFromError(error: any) {
+    return { error }
+  }
+
   state = {
     numPages: null,
     currentPage: 1,
     ready: true,
     pageLoaded: false,
-    pageRendered: false,
-    getText: false,
     scale: 0.75,
+    error: undefined,
   }
 
   MAX_SCALE = 2
   __zoomEvent = false
 
-  pageRefs = new Map<number, any>()
-  pageImages = new Map<number, any>()
-  _doc: any
-
   onDocumentLoadSuccess = ({ numPages }) => {
     this.setState({ numPages })
   }
 
-  onError = error =>
-    window.alert('Error while loading document! \n' + error.message)
+  onError = (error: Error) => this.setState({ error })
 
-  cache = (pageKey: number) => {
-    if (!this.pageImages.has(pageKey)) {
-      this.pageImages.set(
-        pageKey,
-        this.pageRefs.get(pageKey).children[0].toDataURL('image/png'),
-      )
-    }
-  }
-
-  zoomOut = event => {
+  zoomOut = (event: any) => {
     event.preventDefault()
     if (!this.__zoomEvent) {
       raf(this.zOut)
     }
   }
 
-  zoomIn = event => {
-    event.preventDefault() // this too
+  zoomIn = (event: any) => {
+    event.preventDefault()
     if (!this.__zoomEvent) {
       raf(this.zIn)
+    }
+  }
+
+  zIn = () => {
+    if (this.state.scale <= this.MAX_SCALE - 0.25) {
+      this.__zoomEvent = true
+      this.setState(previousState => ({
+        scale: previousState.scale + 0.25,
+      }))
     }
   }
 
@@ -91,27 +96,11 @@ class Reader extends React.Component<Props, State> {
     }
   }
 
-  zIn = () => {
-    if (this.state.scale <= this.MAX_SCALE - 0.25) {
-      this.__zoomEvent = true
-      this.setState(previousState => ({
-        scale: previousState.scale + 0.25,
-      }))
-    }
-  }
-
   up = () => {
     const { currentPage } = this.state
     if (currentPage > 1) {
       const target = currentPage - 1
       this.setState({ currentPage: target })
-      if (!this.pageImages.has(target)) {
-        this.setState({
-          pageLoaded: false,
-          pageRendered: false,
-          getText: false,
-        })
-      }
     }
     // @ts-ignore
     cancel(this.up)
@@ -122,120 +111,120 @@ class Reader extends React.Component<Props, State> {
     if (currentPage < numPages) {
       const target = currentPage + 1
       this.setState({ currentPage: target })
-      if (!this.pageImages.has(target)) {
-        this.setState({
-          pageLoaded: false,
-          pageRendered: false,
-          getText: false,
-        })
-      }
     }
     // @ts-ignore
     cancel(this.down)
   }
 
-  goUp = event => {
+  goUp = (event: any) => {
     event.preventDefault()
     raf(this.up)
   }
 
-  goDown = event => {
+  goDown = (event: any) => {
     event.preventDefault()
     raf(this.down)
   }
 
-  renderImage = pageNumber => (
-    <img src={this.pageImages.get(pageNumber)} style={{ width: '100%' }} />
-  )
-
-  onPageReadyToCache = pageStatus => {
-    this.__zoomEvent = false
-    const { pageLoaded, pageRendered, getText, currentPage } = this.state
-    const newValue = { pageLoaded, pageRendered, getText, ...pageStatus }
-    if (newValue.pageLoaded && newValue.pageRendered && newValue.getText) {
-      this.cache(currentPage)
-      this.setState({ cached: true })
-    } else {
-      this.setState({ cached: false, ...pageStatus })
-    }
-  }
-
-  renderPage = pageNumber => {
+  renderPage = (pageNumber: number) => {
     return (
       <Page
         loading={' '}
-        inputRef={ref => ref && this.pageRefs.set(pageNumber, ref)}
         key={`page_${pageNumber}`}
         pageNumber={pageNumber}
         onLoadError={this.onError}
         onRenderError={this.onError}
         onGetTextError={this.onError}
-        onRenderSuccess={() => this.onPageReadyToCache({ pageRendered: true })}
-        onGetTextSuccess={() => this.onPageReadyToCache({ getText: true })}
+        onRenderSuccess={() => {
+          this.__zoomEvent = false
+        }}
         scale={this.state.scale}
       />
     )
   }
 
   render() {
-    const { numPages, currentPage } = this.state
+    const { numPages, currentPage, error } = this.state
+    const { customStyle } = this.props
+    if (error) {
+      return <p>{error.message ? error.message : 'Sorry an error occurred!'}</p>
+    }
     return (
       <div className='Reader'>
-        <div className='Reader__container'>
-          <div className='Reader__container__document'>
+        <div className='Reader__container' style={customStyle?.readerContainer}>
+          <div
+            className='Reader__container__document'
+            style={customStyle?.readerContainerDocument}
+          >
             <Document
               loading={' '}
-              inputRef={ref => (this._doc = ref)}
-              file={file}
               onLoadSuccess={this.onDocumentLoadSuccess}
               onLoadError={this.onError}
               onSourceError={this.onError}
-              {...{ options }}
+              {...{ options, file }}
             >
               {this.renderPage(currentPage)}
             </Document>
           </div>
 
           {numPages && (
-            <div className='Reader__container__numbers'>
-              <div className='Reader__container__numbers__content'>
+            <div
+              className='Reader__container__numbers'
+              style={customStyle?.readerContainerNumbers}
+            >
+              <div
+                className='Reader__container__numbers__content'
+                style={customStyle?.readerContainerNumbersContent}
+              >
                 {currentPage} / {numPages}
               </div>
             </div>
           )}
 
-          <div className='Reader__container__zoom_container'>
+          <div
+            className='Reader__container__zoom_container'
+            style={customStyle?.readerContainerZoomContainer}
+          >
             <div
               className='Reader__container__zoom_container__button'
+              style={customStyle?.readerContainerZoomContainerButton}
               onClick={this.zoomIn}
             >
               <Plus />
             </div>
             <div
               className='Reader__container__zoom_container__button'
+              style={customStyle?.readerContainerZoomContainerButton}
               onClick={this.zoomOut}
             >
               <Minus />
             </div>
           </div>
 
-          <div className={'Reader__container__navigate'}>
+          <div
+            className={'Reader__container__navigate'}
+            style={customStyle?.readerContainerNavigate}
+          >
             <div
               className='Reader__container__navigate__arrow'
-              style={
-                currentPage === 1 ? { color: 'rgba(255,255,255,0.2)' } : {}
-              }
+              style={{
+                ...(currentPage === 1
+                  ? { color: 'rgba(255,255,255,0.4)' }
+                  : {}),
+                ...customStyle?.readerContainerNavigateArrow,
+              }}
               onClick={this.goUp}
             >
               <Up />
             </div>
             <div
               className='Reader__container__navigate__arrow'
-              style={
-                currentPage === numPages
-                  ? { color: 'rgba(255,255,255,0.2)' }
-                  : {}
-              }
+              style={{
+                ...(currentPage === numPages
+                  ? { color: 'rgba(255,255,255,0.4)' }
+                  : {}),
+                ...customStyle?.readerContainerNavigateArrow,
+              }}
               onClick={this.goDown}
             >
               <Down />
@@ -249,4 +238,7 @@ class Reader extends React.Component<Props, State> {
 
 const tagData = document.querySelector('#file')
 const file = tagData.getAttribute('data-file')
-render(<Reader file={file} />, ReactContainer)
+// @ts-ignore
+const customStyle = window.CUSTOM_STYLE
+
+render(<Reader {...{ file, customStyle }} />, ReactContainer)

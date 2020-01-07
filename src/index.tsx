@@ -1,7 +1,7 @@
 import * as React from 'react'
+import * as CSS from 'csstype'
 import { View, ActivityIndicator, Platform, StyleSheet } from 'react-native'
 import { WebView } from 'react-native-webview'
-import Constants from 'expo-constants'
 import * as FileSystem from 'expo-file-system'
 
 const {
@@ -11,33 +11,55 @@ const {
   getInfoAsync,
 } = FileSystem
 
-function viewerHtml(base64: string): string {
+interface CustomStyle {
+  readerContainer?: CSS.Properties<any>
+  readerContainerDocument?: CSS.Properties<any>
+  readerContainerNumbers?: CSS.Properties<any>
+  readerContainerNumbersContent?: CSS.Properties<any>
+  readerContainerZoomContainer?: CSS.Properties<any>
+  readerContainerZoomContainerButton?: CSS.Properties<any>
+  readerContainerNavigate?: CSS.Properties<any>
+  readerContainerNavigateArrow?: CSS.Properties<any>
+}
+function viewerHtml(base64: string, customStyle?: CustomStyle): string {
   return `
- <!DOCTYPE html>
- <html>
-   <head>
-     <title>PDF reader</title>
-     <meta charset="utf-8" />
-     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-   </head>
-   <body>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PDF reader</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script type="application/javascript">
+      try {
+        window.CUSTOM_STYLE = JSON.parse('${JSON.stringify(
+          customStyle ?? {},
+        )}');
+      } catch (error) {
+        window.CUSTOM_STYLE = {}
+      }
+    </script>
+  </head>
+  <body>
      <div id="file" data-file="${base64}"></div>
      <div id="react-container"></div>
      <script type="text/javascript" src="bundle.js"></script>
    </body>
- </html>
+</html>
 `
 }
 
 const bundleJsPath = `${cacheDirectory}bundle.js`
 const htmlPath = `${cacheDirectory}index.html`
-async function writeWebViewReaderFileAsync(data: string): Promise<void> {
+async function writeWebViewReaderFileAsync(
+  data: string,
+  customStyle?: CustomStyle,
+): Promise<void> {
   const { exists, md5 } = await getInfoAsync(bundleJsPath, { md5: true })
   const bundleContainer = require('./bundleContainer')
-  if (!exists || bundleContainer.getBundleMd5() !== md5) {
+  if (__DEV__ || !exists || bundleContainer.getBundleMd5() !== md5) {
     await writeAsStringAsync(bundleJsPath, bundleContainer.getBundle())
   }
-  await writeAsStringAsync(htmlPath, viewerHtml(data))
+  await writeAsStringAsync(htmlPath, viewerHtml(data, customStyle))
 }
 
 export async function removeFilesAsync(): Promise<void> {
@@ -106,7 +128,6 @@ const Loader = () => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Platform.OS === 'ios' ? Constants.statusBarHeight : 0,
   },
   webview: {
     flex: 1,
@@ -124,6 +145,7 @@ interface Props {
   style?: View['props']['style']
   webviewStyle?: WebView['props']['style']
   noLoader?: boolean
+  customStyle?: CustomStyle
   onLoad?(): void
   onLoadEnd?(): void
   onError?(): void
@@ -131,50 +153,40 @@ interface Props {
 
 interface State {
   ready: boolean
-  android: boolean
-  ios: boolean
   data?: string
 }
 
 class PdfReader extends React.Component<Props, State> {
-  state = { ready: false, android: false, ios: false, data: undefined }
+  state = {
+    ready: false,
+    data: undefined,
+  }
 
   init = async () => {
-    const { onLoad } = this.props
     try {
-      const { source } = this.props
-      const ios = Platform.OS === 'ios'
-      const android = Platform.OS === 'android'
-
-      this.setState({ ios, android })
+      const { source, customStyle } = this.props
       let ready = false
       let data
       if (
         source.uri &&
-        android &&
         (source.uri.startsWith('http') ||
           source.uri.startsWith('file') ||
           source.uri.startsWith('content'))
       ) {
         data = await fetchPdfAsync(source)
         ready = !!data
-      } else if (source.base64 && source.base64.startsWith('data')) {
+      } else if (
+        source.base64 &&
+        source.base64.startsWith('data:application/pdf;base64,')
+      ) {
         data = source.base64
         ready = true
-      } else if (ios) {
-        data = source.uri
       } else {
         alert('source props is not correct')
         return
       }
 
-      if (android && data) {
-        await writeWebViewReaderFileAsync(data)
-      }
-
-      if (onLoad && ready === true) {
-        onLoad()
-      }
+      await writeWebViewReaderFileAsync(data!, customStyle)
 
       this.setState({ ready, data })
     } catch (error) {
@@ -188,16 +200,19 @@ class PdfReader extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    if (this.state.android) {
+    try {
       removeFilesAsync()
+    } catch (error) {
+      alert(`Error on removing file. ${error.message}`)
+      console.error(error)
     }
   }
 
   render() {
-    const { ready, data, ios, android } = this.state
+    const { ready, data } = this.state
 
     const {
-      style,
+      style: containerStyle,
       webviewStyle,
       onLoad,
       noLoader,
@@ -206,35 +221,23 @@ class PdfReader extends React.Component<Props, State> {
     } = this.props
 
     const originWhitelist = ['http://*', 'https://*', 'file://*', 'data:*']
-
-    if (data && ios) {
+    const style = [styles.webview, webviewStyle]
+    const source = { uri: htmlPath }
+    const isAndroid = Platform.OS === 'android'
+    if (ready && data) {
       return (
-        <View style={[styles.container, style]}>
+        <View style={[styles.container, containerStyle]}>
           <WebView
-            onLoad={() => {
-              this.setState({ ready: true })
-              if (onLoad) {
-                onLoad()
-              }
+            {...{
+              originWhitelist,
+              onLoad,
+              onLoadEnd,
+              onError,
+              style,
+              source,
             }}
-            {...{ originWhitelist, onLoadEnd, onError }}
-            style={[styles.webview, webviewStyle]}
-            source={{ uri: data! }}
-          />
-        </View>
-      )
-    }
-
-    if (ready && data && android) {
-      return (
-        <View style={[styles.container, style]}>
-          <WebView
-            {...{ originWhitelist, onLoad, onLoadEnd, onError }}
-            allowFileAccess
-            style={[styles.webview, webviewStyle]}
-            source={{ uri: htmlPath }}
-            mixedContentMode='always'
-            scrollEnabled
+            allowFileAccess={isAndroid}
+            mixedContentMode={isAndroid ? 'always' : undefined}
           />
         </View>
       )

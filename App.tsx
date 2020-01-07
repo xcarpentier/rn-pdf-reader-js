@@ -1,5 +1,7 @@
 import React from 'react'
 import PdfReader from './src/'
+import { WebViewErrorEvent } from 'react-native-webview/lib/WebViewTypes'
+import { View, Text } from 'react-native'
 
 const base64 =
   'data:application/pdf;base64,JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwog' +
@@ -16,25 +18,44 @@ const base64 =
   'MDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9v' +
   'dCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G'
 
-export default class App extends React.Component {
-  render() {
+function App() {
+  const [error, setError] = React.useState<WebViewErrorEvent | undefined>(
+    undefined,
+  )
+  if (error) {
     return (
-      <PdfReader
-        source={{
-          // uri: 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf',
-          base64,
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: 15,
         }}
-        style={{ paddingTop: 20 }}
-        customStyle={{
-          readerContainerZoomContainer: {
-            borderRadius: 30,
-            backgroundColor: '#a0a',
-          },
-          readerContainerZoomContainerButton: {
-            borderRadius: 30,
-          },
-        }}
-      />
+      >
+        <Text style={{ color: 'red', textAlign: 'center' }}>
+          {error.nativeEvent.description}
+        </Text>
+      </View>
     )
   }
+  return (
+    <PdfReader
+      source={{
+        uri: 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf',
+      }}
+      onError={setError}
+      style={{ paddingTop: 20 }}
+      customStyle={{
+        readerContainerZoomContainer: {
+          borderRadius: 30,
+          backgroundColor: '#a0a',
+        },
+        readerContainerZoomContainerButton: {
+          borderRadius: 30,
+        },
+      }}
+    />
+  )
 }
+
+export default App

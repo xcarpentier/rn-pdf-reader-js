@@ -3,6 +3,10 @@ import * as CSS from 'csstype'
 import { View, ActivityIndicator, Platform, StyleSheet } from 'react-native'
 import { WebView } from 'react-native-webview'
 import * as FileSystem from 'expo-file-system'
+import {
+  WebViewErrorEvent,
+  WebViewNavigationEvent,
+} from 'react-native-webview/lib/WebViewTypes'
 
 const {
   cacheDirectory,
@@ -147,9 +151,9 @@ interface Props {
   webviewProps?: WebView['props']
   noLoader?: boolean
   customStyle?: CustomStyle
-  onLoad?(): void
-  onLoadEnd?(): void
-  onError?(): void
+  onLoad?(event: WebViewNavigationEvent): void
+  onLoadEnd?(event: WebViewNavigationEvent | WebViewErrorEvent): void
+  onError?(event: WebViewErrorEvent): void
 }
 
 interface State {

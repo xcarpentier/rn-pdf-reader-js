@@ -144,6 +144,7 @@ interface Props {
   source: Source
   style?: View['props']['style']
   webviewStyle?: WebView['props']['style']
+  webviewProps?: WebView['props']
   noLoader?: boolean
   customStyle?: CustomStyle
   onLoad?(): void
@@ -218,6 +219,7 @@ class PdfReader extends React.Component<Props, State> {
       noLoader,
       onLoadEnd,
       onError,
+      webviewProps,
     } = this.props
 
     const originWhitelist = ['http://*', 'https://*', 'file://*', 'data:*']
@@ -238,6 +240,7 @@ class PdfReader extends React.Component<Props, State> {
             }}
             allowFileAccess={isAndroid}
             mixedContentMode={isAndroid ? 'always' : undefined}
+            {...webviewProps}
           />
         </View>
       )

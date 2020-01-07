@@ -12,9 +12,6 @@
 </a>
   <a href="#hire-an-expert"><img src="https://img.shields.io/badge/%F0%9F%92%AA-hire%20an%20expert-brightgreen"/></a>
 </p>
-<p align="center">
-  <a href="https://exp.host/@xcarpentier/rn-pdf-reader-example">💥 DEMO 💥</a>
-</p>
 
 # Read a PDF just with JS (no native libs needed)
 

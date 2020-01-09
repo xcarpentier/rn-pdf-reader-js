@@ -160,6 +160,7 @@ interface State {
   ready: boolean
   data?: string
   isBase64: boolean
+  renderedOnce: boolean
 }
 
 class PdfReader extends React.Component<Props, State> {
@@ -167,6 +168,7 @@ class PdfReader extends React.Component<Props, State> {
     ready: false,
     data: undefined,
     isBase64: false,
+    renderedOnce: false,
   }
 
   init = async () => {
@@ -236,6 +238,7 @@ class PdfReader extends React.Component<Props, State> {
 
   render() {
     const { ready, data, isBase64 } = this.state
+    const { renderedOnce } = this.state;
 
     const {
       style: containerStyle,
@@ -258,11 +261,14 @@ class PdfReader extends React.Component<Props, State> {
           <WebView
             {...{
               originWhitelist,
-              onLoad,
+              onLoad: (event) => {
+                this.setState({ renderedOnce: true });
+                if (onLoad) { onLoad(event); }
+              },
               onLoadEnd,
               onError,
               style,
-              source,
+              source: (renderedOnce || !isAndroid) ? source : undefined,
             }}
             allowFileAccess={isAndroid}
             mixedContentMode={isAndroid ? 'always' : undefined}

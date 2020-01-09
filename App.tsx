@@ -1,7 +1,7 @@
 import React from 'react'
 import PdfReader from './src/'
 import { WebViewErrorEvent } from 'react-native-webview/lib/WebViewTypes'
-import { View, Text, Modal, Button, SafeAreaView } from 'react-native'
+import { View, Text, Modal, Button, SafeAreaView, Switch } from 'react-native'
 
 const base64 =
   'data:application/pdf;base64,JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwog' +
@@ -17,12 +17,14 @@ const base64 =
   'CjAwMDAwMDAwNzkgMDAwMDAgbiAKMDAwMDAwMDE3MyAwMDAwMCBuIAowMDAwMDAwMzAxIDAw' +
   'MDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9v' +
   'dCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G'
+const uri = 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf'
 
 function App() {
   const [error, setError] = React.useState<WebViewErrorEvent | undefined>(
     undefined,
   )
   const [visible, setVisible] = React.useState<boolean>(false)
+  const [pdfType, setPdfType] = React.useState<boolean>(false)
   if (error) {
     return (
       <View
@@ -44,16 +46,13 @@ function App() {
       style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
     >
       <Button title='Show PDF' onPress={() => setVisible(true)} />
+      <Text>{'\nPDF type (uri -> base64)'}</Text>
+      <Switch value={pdfType} onValueChange={setPdfType} />
       <Modal {...{ visible }}>
         <SafeAreaView style={{ flex: 1 }}>
-          <Button
-            title='Hide PDF'
-            onPress={() => setVisible(false)}
-          />
+          <Button title='Hide PDF' onPress={() => setVisible(false)} />
           <PdfReader
-            source={{
-              uri: 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf',
-            }}
+            source={pdfType ? { base64 } : { uri }}
             onError={setError}
             style={{ paddingTop: 20 }}
             customStyle={{

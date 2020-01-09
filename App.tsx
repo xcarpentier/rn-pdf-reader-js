@@ -1,7 +1,7 @@
 import React from 'react'
 import PdfReader from './src/'
 import { WebViewErrorEvent } from 'react-native-webview/lib/WebViewTypes'
-import { View, Text } from 'react-native'
+import { View, Text, Modal, Button, SafeAreaView } from 'react-native'
 
 const base64 =
   'data:application/pdf;base64,JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwog' +
@@ -22,6 +22,7 @@ function App() {
   const [error, setError] = React.useState<WebViewErrorEvent | undefined>(
     undefined,
   )
+  const [visible, setVisible] = React.useState<boolean>(false)
   if (error) {
     return (
       <View
@@ -39,22 +40,35 @@ function App() {
     )
   }
   return (
-    <PdfReader
-      source={{
-        uri: 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf',
-      }}
-      onError={setError}
-      style={{ paddingTop: 20 }}
-      customStyle={{
-        readerContainerZoomContainer: {
-          borderRadius: 30,
-          backgroundColor: '#a0a',
-        },
-        readerContainerZoomContainerButton: {
-          borderRadius: 30,
-        },
-      }}
-    />
+    <SafeAreaView
+      style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+    >
+      <Button title='Show PDF' onPress={() => setVisible(true)} />
+      <Modal {...{ visible }}>
+        <SafeAreaView style={{ flex: 1 }}>
+          <Button
+            title='Hide PDF'
+            onPress={() => setVisible(false)}
+          />
+          <PdfReader
+            source={{
+              uri: 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf',
+            }}
+            onError={setError}
+            style={{ paddingTop: 20 }}
+            customStyle={{
+              readerContainerZoomContainer: {
+                borderRadius: 30,
+                backgroundColor: 'black',
+              },
+              readerContainerZoomContainerButton: {
+                borderRadius: 30,
+              },
+            }}
+          />
+        </SafeAreaView>
+      </Modal>
+    </SafeAreaView>
   )
 }
 

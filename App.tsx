@@ -1,6 +1,9 @@
 import React from 'react'
 import PdfReader from './src/'
-import { WebViewErrorEvent } from 'react-native-webview/lib/WebViewTypes'
+import {
+  WebViewErrorEvent,
+  WebViewHttpErrorEvent,
+} from 'react-native-webview/lib/WebViewTypes'
 import { View, Text, Modal, Button, SafeAreaView, Switch } from 'react-native'
 
 const base64 =
@@ -20,11 +23,13 @@ const base64 =
 const uri = 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf'
 
 function App() {
-  const [error, setError] = React.useState<WebViewErrorEvent | undefined>(
-    undefined,
-  )
+  const [error, setError] = React.useState<
+    WebViewErrorEvent | WebViewHttpErrorEvent | string | undefined
+  >(undefined)
   const [visible, setVisible] = React.useState<boolean>(false)
   const [pdfType, setPdfType] = React.useState<boolean>(false)
+  const [useGoogleReader, setUseGoogleReader] = React.useState<boolean>(false)
+  const [withScroll, setWithScroll] = React.useState<boolean>(false)
   if (error) {
     return (
       <View
@@ -36,25 +41,46 @@ function App() {
         }}
       >
         <Text style={{ color: 'red', textAlign: 'center' }}>
-          {error.nativeEvent.description}
+          {error.toString()}
         </Text>
       </View>
     )
   }
+
   return (
     <SafeAreaView
       style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
     >
       <Button title='Show PDF' onPress={() => setVisible(true)} />
       <Text>{'\nPDF type (uri -> base64)'}</Text>
-      <Switch value={pdfType} onValueChange={setPdfType} />
+      <Switch
+        value={pdfType}
+        onValueChange={value => {
+          setPdfType(value)
+          if (value) {
+            setUseGoogleReader(false)
+          }
+        }}
+      />
+      <Text>{'\nGoogle Reader?'}</Text>
+      <Switch
+        value={useGoogleReader}
+        onValueChange={value => {
+          setUseGoogleReader(value)
+          if (value) {
+            setPdfType(false)
+          }
+        }}
+      />
+      <Text>{'\nWith Scroll?'}</Text>
+      <Switch value={withScroll} onValueChange={setWithScroll} />
       <Modal {...{ visible }}>
         <SafeAreaView style={{ flex: 1 }}>
           <Button title='Hide PDF' onPress={() => setVisible(false)} />
           <PdfReader
             source={pdfType ? { base64 } : { uri }}
             onError={setError}
-            style={{ paddingTop: 20 }}
+            {...{ useGoogleReader, withScroll }}
             customStyle={{
               readerContainerZoomContainer: {
                 borderRadius: 30,

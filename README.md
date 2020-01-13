@@ -1,4 +1,4 @@
-<h1 align="center">PDF reader for Expo</h1>
+<h1 align="center">PDF Reader</h1>
 <p align="center">Android support 🚀</p>
 
 <p align="center">
@@ -21,11 +21,7 @@
 - 👉**Install expo-file-system** on your own!
 - 👉**Install expo-constants** on your own!
 - Use it into Expo app (from expo client, Standalone app or ExpoKit app).
-- Only React-Native 0.60+ support, **Expo SDK 33-36+**
-
-## Limitations
-
-- **Display file only on full screen.**
+- Only React-Native 0.59-0.60+ support, **Expo SDK 33-36+**
 
 [PRs are welcome...](https://github.com/xcarpentier/rn-pdf-reader-js/pulls)
 
@@ -49,6 +45,8 @@ export default class App extends React.Component {
 }
 ```
 
+See more detailed example into `App.tsx` file.
+
 ## Props
 
 ```tsx
@@ -64,6 +62,8 @@ interface Props {
   webviewStyle?: WebView['props']['style'] // style props to override default WebView style
   webviewProps?: WebView['props']
   noLoader?: boolean
+  useGoogleReader?: boolean // If you are not worried about confidentiality
+  withScroll?: boolean // Can cause performance issue
   customStyle?: {
     readerContainer?: CSS.Properties
     readerContainerDocument?: CSS.Properties
@@ -79,6 +79,14 @@ interface Props {
   onError?(): void // callback that runs when WebView is on error
 }
 ```
+
+## Possibilities
+
+| Render type         | Platform     | Source prop   |
+| ------------------- | ------------ | ------------- |
+| Custom PDF reader   | Android      | uri or base64 |
+| Direct from WebView | iOS          | uri or base64 |
+| Google PDF Reader   | Android, iOS | uri           |
 
 ## What rn-pdf-reader-js use?
 

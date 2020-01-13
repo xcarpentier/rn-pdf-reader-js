@@ -1,11 +1,14 @@
 import * as React from 'react'
 import * as CSS from 'csstype'
+import { Base64 } from 'js-base64'
 import { View, ActivityIndicator, Platform, StyleSheet } from 'react-native'
 import { WebView } from 'react-native-webview'
 import * as FileSystem from 'expo-file-system'
 import {
   WebViewErrorEvent,
   WebViewNavigationEvent,
+  WebViewSource,
+  WebViewHttpErrorEvent,
 } from 'react-native-webview/lib/WebViewTypes'
 
 const {
@@ -15,7 +18,14 @@ const {
   getInfoAsync,
 } = FileSystem
 
-interface CustomStyle {
+export type RenderType =
+  | 'DIRECT_URL'
+  | 'DIRECT_BASE64'
+  | 'BASE64_TO_LOCAL_PDF'
+  | 'URL_TO_BASE64'
+  | 'GOOGLE_READER'
+
+export interface CustomStyle {
   readerContainer?: CSS.Properties<any>
   readerContainerDocument?: CSS.Properties<any>
   readerContainerNumbers?: CSS.Properties<any>
@@ -25,7 +35,40 @@ interface CustomStyle {
   readerContainerNavigate?: CSS.Properties<any>
   readerContainerNavigateArrow?: CSS.Properties<any>
 }
-function viewerHtml(base64: string, customStyle?: CustomStyle): string {
+
+export interface Source {
+  uri?: string
+  base64?: string
+  headers?: { [key: string]: string }
+}
+
+export interface Props {
+  source: Source
+  style?: View['props']['style']
+  webviewStyle?: WebView['props']['style']
+  webviewProps?: WebView['props']
+  noLoader?: boolean
+  customStyle?: CustomStyle
+  useGoogleReader?: boolean
+  withScroll?: boolean
+  onLoad?(event: WebViewNavigationEvent): void
+  onLoadEnd?(event: WebViewNavigationEvent | WebViewErrorEvent): void
+  onError?(event: WebViewErrorEvent | WebViewHttpErrorEvent | string): void
+  // TODO: onReachedEnd?(): void
+}
+
+interface State {
+  renderType?: RenderType
+  ready: boolean
+  data?: string
+  renderedOnce: boolean
+}
+
+function viewerHtml(
+  base64: string,
+  customStyle?: CustomStyle,
+  withScroll: boolean = false,
+): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -41,6 +84,11 @@ function viewerHtml(base64: string, customStyle?: CustomStyle): string {
       } catch (error) {
         window.CUSTOM_STYLE = {}
       }
+      try {
+        window.WITH_SCROLL = JSON.parse('${JSON.stringify(withScroll)}');
+      } catch (error) {
+        window.WITH_SCROLL = {}
+      }
     </script>
   </head>
   <body>
@@ -52,22 +100,41 @@ function viewerHtml(base64: string, customStyle?: CustomStyle): string {
 `
 }
 
+// PATHS
 const bundleJsPath = `${cacheDirectory}bundle.js`
 const htmlPath = `${cacheDirectory}index.html`
+const pdfPath = `${cacheDirectory}file.pdf`
+
 async function writeWebViewReaderFileAsync(
   data: string,
   customStyle?: CustomStyle,
+  withScroll?: boolean,
 ): Promise<void> {
   const { exists, md5 } = await getInfoAsync(bundleJsPath, { md5: true })
   const bundleContainer = require('./bundleContainer')
   if (__DEV__ || !exists || bundleContainer.getBundleMd5() !== md5) {
     await writeAsStringAsync(bundleJsPath, bundleContainer.getBundle())
   }
-  await writeAsStringAsync(htmlPath, viewerHtml(data, customStyle))
+  await writeAsStringAsync(htmlPath, viewerHtml(data, customStyle, withScroll))
+}
+
+async function writePDFAsync(base64: string) {
+  await writeAsStringAsync(
+    pdfPath,
+    Base64.decode(base64.replace('data:application/pdf;base64,', '')),
+  )
 }
 
 export async function removeFilesAsync(): Promise<void> {
-  await deleteAsync(htmlPath)
+  const { exists: htmlPathExist } = await getInfoAsync(htmlPath)
+  if (htmlPathExist) {
+    await deleteAsync(htmlPath)
+  }
+
+  const { exists: pdfPathExist } = await getInfoAsync(pdfPath)
+  if (pdfPathExist) {
+    await deleteAsync(pdfPath)
+  }
 }
 
 function readAsTextAsync(mediaBlob: Blob): Promise<string> {
@@ -123,110 +190,174 @@ async function urlToBlob(source: Source): Promise<Blob | undefined> {
   })
 }
 
+const getGoogleReaderUrl = (url: string) =>
+  `https://docs.google.com/viewer?url=${url}`
+
 const Loader = () => (
   <View style={{ flex: 1, justifyContent: 'center' }}>
     <ActivityIndicator size='large' />
   </View>
 )
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  webview: {
-    flex: 1,
-  },
-})
-
-interface Source {
-  uri?: string
-  base64?: string
-  headers?: { [key: string]: string }
-}
-
-interface Props {
-  source: Source
-  style?: View['props']['style']
-  webviewStyle?: WebView['props']['style']
-  webviewProps?: WebView['props']
-  noLoader?: boolean
-  customStyle?: CustomStyle
-  onLoad?(event: WebViewNavigationEvent): void
-  onLoadEnd?(event: WebViewNavigationEvent | WebViewErrorEvent): void
-  onError?(event: WebViewErrorEvent): void
-}
-
-interface State {
-  ready: boolean
-  data?: string
-  isBase64: boolean
-  renderedOnce: boolean
-}
-
 class PdfReader extends React.Component<Props, State> {
+  static defaultProps = {
+    withScroll: false,
+  }
+
   state = {
+    renderType: undefined,
     ready: false,
     data: undefined,
-    isBase64: false,
     renderedOnce: false,
+  }
+
+  validate = () => {
+    const { onError: propOnError, source } = this.props
+    const { renderType } = this.state
+    const onError = propOnError !== undefined ? propOnError : console.error
+    if (!renderType || !source) {
+      onError('source is undefined')
+    } else if (
+      (renderType === 'DIRECT_URL' ||
+        renderType === 'GOOGLE_READER' ||
+        renderType === 'URL_TO_BASE64') &&
+      (!source.uri ||
+        !(
+          source.uri.startsWith('http') ||
+          source.uri.startsWith('file') ||
+          source.uri.startsWith('content')
+        ))
+    ) {
+      onError(
+        `source.uri is undefined or not started with http, file or content source.uri = ${source.uri}`,
+      )
+    } else if (
+      (renderType === 'BASE64_TO_LOCAL_PDF' ||
+        renderType === 'DIRECT_BASE64') &&
+      (!source.base64 ||
+        !source.base64.startsWith('data:application/pdf;base64,'))
+    ) {
+      onError(
+        'Base64 is not correct (ie. start with data:application/pdf;base64,)',
+      )
+    }
   }
 
   init = async () => {
     try {
-      const { source, customStyle } = this.props
-      let ready = false
-      let isBase64 = false
-      let data: any
-      if (
-        source.uri &&
-        (source.uri.startsWith('http') ||
-          source.uri.startsWith('file') ||
-          source.uri.startsWith('content'))
-      ) {
-        switch (Platform.OS) {
-          case 'android': {
-            data = await fetchPdfAsync(source)
-            ready = !!data
-            isBase64 = true
-            break
-          }
-
-          default: {
-            data = source.uri
-            ready = true
-            break
-          }
+      const { source, customStyle, withScroll } = this.props
+      const { renderType } = this.state
+      switch (renderType!) {
+        case 'URL_TO_BASE64': {
+          const data = await fetchPdfAsync(source)
+          await writeWebViewReaderFileAsync(data!, customStyle, withScroll)
+          break
         }
-      } else if (
-        source.base64 &&
-        source.base64.startsWith('data:application/pdf;base64,')
-      ) {
-        data = source.base64
-        ready = true
-        isBase64 = true
-      } else {
-        alert('source props is not correct')
-        return
+
+        case 'DIRECT_BASE64': {
+          await writeWebViewReaderFileAsync(
+            source.base64!,
+            customStyle,
+            withScroll,
+          )
+          break
+        }
+
+        case 'BASE64_TO_LOCAL_PDF': {
+          await writePDFAsync(source.base64!)
+          break
+        }
+
+        default:
+          break
       }
 
-      if (isBase64) {
-        await writeWebViewReaderFileAsync(data!, customStyle)
-      }
-
-      this.setState({ ready, data, isBase64 })
+      this.setState({ ready: true })
     } catch (error) {
       alert(`Sorry, an error occurred. ${error.message}`)
       console.error(error)
     }
   }
 
+  getRenderType = () => {
+    const {
+      useGoogleReader,
+      source: { uri, base64 },
+    } = this.props
+
+    if (useGoogleReader) {
+      return 'GOOGLE_READER'
+    }
+
+    if (Platform.OS === 'ios') {
+      if (uri !== undefined) {
+        return 'DIRECT_URL'
+      }
+      if (base64 !== undefined) {
+        return 'BASE64_TO_LOCAL_PDF'
+      }
+    }
+
+    if (base64 !== undefined) {
+      return 'DIRECT_BASE64'
+    }
+
+    if (uri !== undefined) {
+      return 'URL_TO_BASE64'
+    }
+
+    return undefined
+  }
+
+  getWebviewSource = (): WebViewSource | undefined => {
+    const { renderType } = this.state
+    const {
+      source: { uri, headers },
+      onError,
+    } = this.props
+    switch (renderType!) {
+      case 'GOOGLE_READER':
+        return { uri: getGoogleReaderUrl(uri!) }
+      case 'DIRECT_BASE64':
+      case 'URL_TO_BASE64':
+        return { uri: htmlPath }
+      case 'DIRECT_URL':
+        return { uri: uri!, headers }
+      case 'BASE64_TO_LOCAL_PDF':
+        return { uri: pdfPath }
+      default: {
+        onError!('Unknown RenderType')
+        return undefined
+      }
+    }
+  }
+
   componentDidMount() {
-    this.init()
+    this.setState({ renderType: this.getRenderType() }, () => {
+      console.debug(this.state.renderType)
+      this.validate()
+      this.init()
+    })
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (
+      prevProps.source.uri !== this.props.source.uri ||
+      prevProps.source.base64 !== this.props.source.base64
+    ) {
+      this.setState({ ready: false, renderType: this.getRenderType() })
+      this.validate()
+      this.init()
+    }
   }
 
   componentWillUnmount() {
-    const { isBase64 } = this.state
-    if (isBase64) {
+    const { renderType } = this.state
+    if (
+      renderType === 'DIRECT_BASE64' ||
+      renderType === 'URL_TO_BASE64' ||
+      renderType === 'BASE64_TO_LOCAL_PDF'
+    ) {
       try {
         removeFilesAsync()
       } catch (error) {
@@ -237,8 +368,7 @@ class PdfReader extends React.Component<Props, State> {
   }
 
   render() {
-    const { ready, data, isBase64 } = this.state
-    const { renderedOnce } = this.state;
+    const { ready, renderedOnce } = this.state
 
     const {
       style: containerStyle,
@@ -248,30 +378,35 @@ class PdfReader extends React.Component<Props, State> {
       onLoadEnd,
       onError,
       webviewProps,
-      source: { headers },
     } = this.props
 
     const originWhitelist = ['http://*', 'https://*', 'file://*', 'data:*']
     const style = [styles.webview, webviewStyle]
-    const source = isBase64 ? { uri: htmlPath } : { uri: data!, headers }
+
     const isAndroid = Platform.OS === 'android'
-    if (ready && data) {
+    if (ready) {
+      const source: WebViewSource | undefined = this.getWebviewSource()
       return (
         <View style={[styles.container, containerStyle]}>
           <WebView
             {...{
               originWhitelist,
-              onLoad: (event) => {
-                this.setState({ renderedOnce: true });
-                if (onLoad) { onLoad(event); }
+              onLoad: event => {
+                this.setState({ renderedOnce: true })
+                if (onLoad) {
+                  onLoad(event)
+                }
               },
               onLoadEnd,
               onError,
+              onHttpError: onError,
               style,
-              source: (renderedOnce || !isAndroid) ? source : undefined,
+              source: renderedOnce || !isAndroid ? source : undefined,
             }}
             allowFileAccess={isAndroid}
+            scalesPageToFit={Platform.select({ android: false })}
             mixedContentMode={isAndroid ? 'always' : undefined}
+            sharedCookiesEnabled={false}
             {...webviewProps}
           />
         </View>
@@ -285,5 +420,14 @@ class PdfReader extends React.Component<Props, State> {
     )
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  webview: {
+    flex: 1,
+  },
+})
 
 export default PdfReader

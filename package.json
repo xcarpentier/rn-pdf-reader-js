@@ -10,7 +10,7 @@
     "start": "yarn config:dev && expo start",
     "tsc": "node_modules/.bin/tsc --noEmit",
     "bundle": "./scripts/gen_bundle_string.js",
-    "build": "rm -rf lib/ && node_modules/.bin/tsc && yarn bundle",
+    "build": "yarn bundle && rm -rf lib/ && node_modules/.bin/tsc",
     "config:dev": "json -I -f package.json -e 'this.main=\"node_modules/expo/AppEntry.js\"'",
     "config:npm": "json -I -f package.json -e 'this.main=\"lib/index.js\"'",
     "lint": "tslint --project .",

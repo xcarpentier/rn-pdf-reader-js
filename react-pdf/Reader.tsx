@@ -20,6 +20,7 @@ const options = {
 
 interface Props {
   file: any
+  withScroll?: boolean
   customStyle?: {
     readerContainer?: any
     readerContainerDocument?: any
@@ -50,7 +51,7 @@ class Reader extends React.Component<Props, State> {
     currentPage: 1,
     ready: true,
     pageLoaded: false,
-    scale: 0.75,
+    scale: 1,
     error: undefined,
   }
 
@@ -126,21 +127,27 @@ class Reader extends React.Component<Props, State> {
     raf(this.down)
   }
 
-  renderPage = (pageNumber: number) => {
-    return (
-      <Page
-        loading={' '}
-        key={`page_${pageNumber}`}
-        pageNumber={pageNumber}
-        onLoadError={this.onError}
-        onRenderError={this.onError}
-        onGetTextError={this.onError}
-        onRenderSuccess={() => {
-          this.__zoomEvent = false
-        }}
-        scale={this.state.scale}
-      />
-    )
+  renderPage = (pageNumber: number) => (
+    <Page
+      loading={' '}
+      key={`page_${pageNumber}`}
+      pageNumber={pageNumber}
+      onLoadError={this.onError}
+      onRenderError={this.onError}
+      onGetTextError={this.onError}
+      width={(document.body.clientWidth * 90) / 100}
+      onRenderSuccess={() => {
+        this.__zoomEvent = false
+      }}
+      scale={this.state.scale}
+    />
+  )
+
+  renderPages = () => {
+    const pagesRange = Array.from(Array(this.state.numPages).keys())
+    return pagesRange.map(n => (
+      <div style={{ marginBottom: 10 }}>{this.renderPage(n + 1)}</div>
+    ))
   }
 
   render() {
@@ -163,11 +170,11 @@ class Reader extends React.Component<Props, State> {
               onSourceError={this.onError}
               {...{ options, file }}
             >
-              {this.renderPage(currentPage)}
+              {withScroll ? this.renderPages() : this.renderPage(currentPage)}
             </Document>
           </div>
 
-          {numPages && (
+          {numPages && !withScroll && (
             <div
               className='Reader__container__numbers'
               style={customStyle?.readerContainerNumbers}
@@ -200,36 +207,37 @@ class Reader extends React.Component<Props, State> {
               <Minus />
             </div>
           </div>
-
-          <div
-            className={'Reader__container__navigate'}
-            style={customStyle?.readerContainerNavigate}
-          >
+          {numPages > 1 && !withScroll && (
             <div
-              className='Reader__container__navigate__arrow'
-              style={{
-                ...(currentPage === 1
-                  ? { color: 'rgba(255,255,255,0.4)' }
-                  : {}),
-                ...customStyle?.readerContainerNavigateArrow,
-              }}
-              onClick={this.goUp}
+              className={'Reader__container__navigate'}
+              style={customStyle?.readerContainerNavigate}
             >
-              <Up />
+              <div
+                className='Reader__container__navigate__arrow'
+                style={{
+                  ...(currentPage === 1
+                    ? { color: 'rgba(255,255,255,0.4)' }
+                    : {}),
+                  ...customStyle?.readerContainerNavigateArrow,
+                }}
+                onClick={this.goUp}
+              >
+                <Up />
+              </div>
+              <div
+                className='Reader__container__navigate__arrow'
+                style={{
+                  ...(currentPage === numPages
+                    ? { color: 'rgba(255,255,255,0.4)' }
+                    : {}),
+                  ...customStyle?.readerContainerNavigateArrow,
+                }}
+                onClick={this.goDown}
+              >
+                <Down />
+              </div>
             </div>
-            <div
-              className='Reader__container__navigate__arrow'
-              style={{
-                ...(currentPage === numPages
-                  ? { color: 'rgba(255,255,255,0.4)' }
-                  : {}),
-                ...customStyle?.readerContainerNavigateArrow,
-              }}
-              onClick={this.goDown}
-            >
-              <Down />
-            </div>
-          </div>
+          )}
         </div>
       </div>
     )
@@ -240,5 +248,7 @@ const tagData = document.querySelector('#file')
 const file = tagData.getAttribute('data-file')
 // @ts-ignore
 const customStyle = window.CUSTOM_STYLE
+// @ts-ignore
+const withScroll = window.WITH_SCROLL
 
-render(<Reader {...{ file, customStyle }} />, ReactContainer)
+render(<Reader {...{ file, customStyle, withScroll }} />, ReactContainer)

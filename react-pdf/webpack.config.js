@@ -36,6 +36,12 @@ module.exports = {
   },
   plugins: [
     new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
-    new CopyWebpackPlugin([{ from: './index.html' }]),
+    new CopyWebpackPlugin([
+      { from: './index.html' },
+      {
+        from: 'node_modules/pdfjs-dist/cmaps/',
+        to: 'cmaps/',
+      },
+    ]),
   ],
 }

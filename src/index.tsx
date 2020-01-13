@@ -1,6 +1,5 @@
 import * as React from 'react'
 import * as CSS from 'csstype'
-import { Base64 } from 'js-base64'
 import { View, ActivityIndicator, Platform, StyleSheet } from 'react-native'
 import { WebView } from 'react-native-webview'
 import * as FileSystem from 'expo-file-system'
@@ -16,6 +15,7 @@ const {
   writeAsStringAsync,
   deleteAsync,
   getInfoAsync,
+  EncodingType,
 } = FileSystem
 
 export type RenderType =
@@ -121,7 +121,8 @@ async function writeWebViewReaderFileAsync(
 async function writePDFAsync(base64: string) {
   await writeAsStringAsync(
     pdfPath,
-    Base64.atob(base64.replace('data:application/pdf;base64,', '')),
+    base64.replace('data:application/pdf;base64,', ''),
+    { encoding: EncodingType.Base64 },
   )
 }
 
@@ -194,7 +195,13 @@ const getGoogleReaderUrl = (url: string) =>
   `https://docs.google.com/viewer?url=${url}`
 
 const Loader = () => (
-  <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center' }}>
+  <View
+    style={{
+      ...StyleSheet.absoluteFillObject,
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}
+  >
     <ActivityIndicator size='large' />
   </View>
 )

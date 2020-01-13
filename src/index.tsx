@@ -121,7 +121,7 @@ async function writeWebViewReaderFileAsync(
 async function writePDFAsync(base64: string) {
   await writeAsStringAsync(
     pdfPath,
-    Base64.decode(base64.replace('data:application/pdf;base64,', '')),
+    Base64.atob(base64.replace('data:application/pdf;base64,', '')),
   )
 }
 
@@ -194,7 +194,7 @@ const getGoogleReaderUrl = (url: string) =>
   `https://docs.google.com/viewer?url=${url}`
 
 const Loader = () => (
-  <View style={{ flex: 1, justifyContent: 'center' }}>
+  <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center' }}>
     <ActivityIndicator size='large' />
   </View>
 )
@@ -202,6 +202,7 @@ const Loader = () => (
 class PdfReader extends React.Component<Props, State> {
   static defaultProps = {
     withScroll: false,
+    noLoader: false,
   }
 
   state = {
@@ -407,17 +408,15 @@ class PdfReader extends React.Component<Props, State> {
             scalesPageToFit={Platform.select({ android: false })}
             mixedContentMode={isAndroid ? 'always' : undefined}
             sharedCookiesEnabled={false}
+            startInLoadingState={!noLoader}
+            renderLoading={() => (noLoader ? <View /> : <Loader />)}
             {...webviewProps}
           />
         </View>
       )
     }
 
-    return (
-      <View style={[styles.container, style]}>
-        {!noLoader && !ready && <Loader />}
-      </View>
-    )
+    return !noLoader && !ready && <Loader />
   }
 }
 

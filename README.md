@@ -66,6 +66,7 @@ interface Props {
   noLoader?: boolean
   useGoogleReader?: boolean // If you are not worried about confidentiality
   withScroll?: boolean // Can cause performance issue
+  alwaysUseHtmlViewer?: boolean; // always uses html viewer even when native pdf viewer is available (i.e. iOS)
   customStyle?: {
     readerContainer?: CSS.Properties
     readerContainerDocument?: CSS.Properties
@@ -84,11 +85,12 @@ interface Props {
 
 ## Possibilities
 
-| Render type         | Platform     | Source prop   |
-| ------------------- | ------------ | ------------- |
-| Custom PDF reader   | Android      | uri or base64 |
-| Direct from WebView | iOS          | uri or base64 |
-| Google PDF Reader   | Android, iOS | uri           |
+| Render type         | Platform     | Source prop   | AlwaysUseHtmlViewer prop |
+|---------------------|--------------|---------------|--------------------------|
+| Custom PDF reader   | Android      | uri or base64 | any                      |
+| Custom PDF reader   | iOS          | uri or base64 | true                     |
+| Direct from WebView | iOS          | uri or base64 | false / undefined        |
+| Google PDF Reader   | Android, iOS | uri           | false / undefined        |
 
 ## What rn-pdf-reader-js use?
 

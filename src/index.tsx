@@ -51,6 +51,7 @@ export interface Props {
   customStyle?: CustomStyle
   useGoogleReader?: boolean
   withScroll?: boolean
+  alwaysUseHtmlViewer?: boolean
   onLoad?(event: WebViewNavigationEvent): void
   onLoadEnd?(event: WebViewNavigationEvent | WebViewErrorEvent): void
   onError?(event: WebViewErrorEvent | WebViewHttpErrorEvent | string): void
@@ -291,18 +292,21 @@ class PdfReader extends React.Component<Props, State> {
     const {
       useGoogleReader,
       source: { uri, base64 },
+      alwaysUseHtmlViewer
     } = this.props
 
     if (useGoogleReader) {
       return 'GOOGLE_READER'
     }
 
-    if (Platform.OS === 'ios') {
-      if (uri !== undefined) {
-        return 'DIRECT_URL'
-      }
-      if (base64 !== undefined) {
-        return 'BASE64_TO_LOCAL_PDF'
+    if(!alwaysUseHtmlViewer) {
+      if (Platform.OS === 'ios') {
+        if (uri !== undefined) {
+          return 'DIRECT_URL'
+        }
+        if (base64 !== undefined) {
+          return 'BASE64_TO_LOCAL_PDF'
+        }
       }
     }
 

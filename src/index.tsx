@@ -51,6 +51,7 @@ export interface Props {
   customStyle?: CustomStyle
   useGoogleReader?: boolean
   withScroll?: boolean
+  index?: number;
   onLoad?(event: WebViewNavigationEvent): void
   onLoadEnd?(event: WebViewNavigationEvent | WebViewErrorEvent): void
   onError?(event: WebViewErrorEvent | WebViewHttpErrorEvent | string): void
@@ -102,40 +103,49 @@ function viewerHtml(
 
 // PATHS
 const bundleJsPath = `${cacheDirectory}bundle.js`
-const htmlPath = `${cacheDirectory}index.html`
-const pdfPath = `${cacheDirectory}file.pdf`
+const htmlPath = `${cacheDirectory}INDEX-index.html`
+const pdfPath = `${cacheDirectory}INDEX-file.pdf`
 
 async function writeWebViewReaderFileAsync(
   data: string,
   customStyle?: CustomStyle,
   withScroll?: boolean,
+  index?: number
 ): Promise<void> {
   const { exists, md5 } = await getInfoAsync(bundleJsPath, { md5: true })
   const bundleContainer = require('./bundleContainer')
   if (__DEV__ || !exists || bundleContainer.getBundleMd5() !== md5) {
     await writeAsStringAsync(bundleJsPath, bundleContainer.getBundle())
   }
-  await writeAsStringAsync(htmlPath, viewerHtml(data, customStyle, withScroll))
+  const pathBuilded = buildPath(htmlPath, index);
+  await writeAsStringAsync(pathBuilded, viewerHtml(data, customStyle, withScroll))
 }
 
-async function writePDFAsync(base64: string) {
+async function writePDFAsync(base64: string, index?: number) {
+  const pathBuilded = buildPath(pdfPath, index);
   await writeAsStringAsync(
-    pdfPath,
+    pathBuilded,
     base64.replace('data:application/pdf;base64,', ''),
     { encoding: EncodingType.Base64 },
   )
 }
 
-export async function removeFilesAsync(): Promise<void> {
-  const { exists: htmlPathExist } = await getInfoAsync(htmlPath)
+export async function removeFilesAsync(index?: number): Promise<void> {
+  const pathBuildedHtml = buildPath(htmlPath, index);
+  const { exists: htmlPathExist } = await getInfoAsync(pathBuildedHtml)
   if (htmlPathExist) {
-    await deleteAsync(htmlPath)
+    await deleteAsync(pathBuildedHtml)
   }
 
-  const { exists: pdfPathExist } = await getInfoAsync(pdfPath)
+  const pathBuildedPdf = buildPath(pdfPath, index);
+  const { exists: pdfPathExist } = await getInfoAsync(pathBuildedPdf)
   if (pdfPathExist) {
-    await deleteAsync(pdfPath)
+    await deleteAsync(pathBuildedPdf)
   }
+}
+
+function buildPath(basePath: string, index?: number) {
+  return basePath.replace(/INDEX/g, String(index || 0)); 
 }
 
 function readAsTextAsync(mediaBlob: Blob): Promise<string> {
@@ -253,12 +263,12 @@ class PdfReader extends React.Component<Props, State> {
 
   init = async () => {
     try {
-      const { source, customStyle, withScroll } = this.props
+      const { source, customStyle, withScroll, index } = this.props
       const { renderType } = this.state
       switch (renderType!) {
         case 'URL_TO_BASE64': {
           const data = await fetchPdfAsync(source)
-          await writeWebViewReaderFileAsync(data!, customStyle, withScroll)
+          await writeWebViewReaderFileAsync(data!, customStyle, withScroll, index)
           break
         }
 
@@ -267,12 +277,13 @@ class PdfReader extends React.Component<Props, State> {
             source.base64!,
             customStyle,
             withScroll,
+            index
           )
           break
         }
 
         case 'BASE64_TO_LOCAL_PDF': {
-          await writePDFAsync(source.base64!)
+          await writePDFAsync(source.base64!, index)
           break
         }
 
@@ -321,18 +332,23 @@ class PdfReader extends React.Component<Props, State> {
     const { renderType } = this.state
     const {
       source: { uri, headers },
+      index,
       onError,
     } = this.props
     switch (renderType!) {
       case 'GOOGLE_READER':
         return { uri: getGoogleReaderUrl(uri!) }
       case 'DIRECT_BASE64':
-      case 'URL_TO_BASE64':
-        return { uri: htmlPath }
+      case 'URL_TO_BASE64': {
+        const pathBuilded = buildPath(htmlPath, index);
+        return { uri: pathBuilded }
+      }
       case 'DIRECT_URL':
         return { uri: uri!, headers }
-      case 'BASE64_TO_LOCAL_PDF':
-        return { uri: pdfPath }
+      case 'BASE64_TO_LOCAL_PDF': {
+        const pathBuilded = buildPath(pdfPath, index);
+        return { uri: pathBuilded };
+      }
       default: {
         onError!('Unknown RenderType')
         return undefined
@@ -367,7 +383,8 @@ class PdfReader extends React.Component<Props, State> {
       renderType === 'BASE64_TO_LOCAL_PDF'
     ) {
       try {
-        removeFilesAsync()
+        const { index } = this.props;
+        removeFilesAsync(index);
       } catch (error) {
         alert(`Error on removing file. ${error.message}`)
         console.error(error)

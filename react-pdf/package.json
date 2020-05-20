@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "rm -rf dist/ && ./node_modules/.bin/webpack-cli --mode=production",
+    "build": "rm -rf dist/ && ./node_modules/.bin/webpack-cli --mode=production --optimize-minimize",
     "dev": "./node_modules/.bin/webpack-dev-server --mode=development"
   },
   "dependencies": {

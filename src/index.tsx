@@ -76,6 +76,12 @@ function viewerHtml(
     <title>PDF reader</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/web/pdf_viewer.min.js"></script>
+    <script>
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.worker.min.js'
+    </script>
     <script type="application/javascript">
       try {
         window.CUSTOM_STYLE = JSON.parse('${JSON.stringify(
@@ -181,7 +187,7 @@ async function urlToBlob(source: Source): Promise<Blob | undefined> {
     xhr.open('GET', source.uri!)
 
     if (source.headers && Object.keys(source.headers).length > 0) {
-      Object.keys(source.headers).forEach(key => {
+      Object.keys(source.headers).forEach((key) => {
         xhr.setRequestHeader(key, source.headers![key])
       })
     }
@@ -388,9 +394,15 @@ class PdfReader extends React.Component<Props, State> {
       webviewProps,
     } = this.props
 
-    const originWhitelist = ['http://*', 'https://*', 'file://*', 'data:*']
+    const originWhitelist = [
+      'http://*',
+      'https://*',
+      'file://*',
+      'data:*',
+      'content:*',
+    ]
     const style = [styles.webview, webviewStyle]
-
+    // html: `<script>alert(navigator.serviceWorker)</script>`,
     const isAndroid = Platform.OS === 'android'
     if (ready) {
       const source: WebViewSource | undefined = this.getWebviewSource()
@@ -399,7 +411,7 @@ class PdfReader extends React.Component<Props, State> {
           <WebView
             {...{
               originWhitelist,
-              onLoad: event => {
+              onLoad: (event) => {
                 this.setState({ renderedOnce: true })
                 if (onLoad) {
                   onLoad(event)
@@ -412,6 +424,9 @@ class PdfReader extends React.Component<Props, State> {
               source: renderedOnce || !isAndroid ? source : undefined,
             }}
             allowFileAccess={isAndroid}
+            allowFileAccessFromFileURLs={isAndroid}
+            allowUniversalAccessFromFileURLs={isAndroid}
+            androidHardwareAccelerationDisabled
             scalesPageToFit={Platform.select({ android: false })}
             mixedContentMode={isAndroid ? 'always' : undefined}
             sharedCookiesEnabled={false}

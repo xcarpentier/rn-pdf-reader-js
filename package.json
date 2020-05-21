@@ -7,7 +7,7 @@
   "author": "Xavier Carpentier <xcapetir@gmail.com> (https://xaviercarpentier.com/)",
   "license": "MIT",
   "scripts": {
-    "start": "yarn config:dev && expo start",
+    "start": "yarn config:dev && expo start -c",
     "tsc": "node_modules/.bin/tsc --noEmit",
     "bundle": "./scripts/gen_bundle_string.js",
     "build": "yarn bundle && rm -rf lib/ && node_modules/.bin/tsc",

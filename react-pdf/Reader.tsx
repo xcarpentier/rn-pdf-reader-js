@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { render } from 'react-dom'
-import { Page, Document, pdfjs } from 'react-pdf'
+import Document from 'react-pdf/dist/Document'
+import Page from 'react-pdf/dist/Page'
 import raf, { cancel } from 'raf'
 import Down from './components/down'
 import Plus from './components/Plus'
@@ -9,12 +10,12 @@ import Up from './components/up'
 import './Reader.less'
 
 const ReactContainer = document.querySelector('#react-container')
+// const PDFJS = pdfjs as any
 
-const PDFJS = pdfjs as any
-
-PDFJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS.version}/pdf.worker.js`
+// PDFJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS.version}/pdf.worker.js`
+const version = '2.1.266'
 const options = {
-  cMapUrl: `//cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS.version}/cmaps/`,
+  cMapUrl: `//cdn.jsdelivr.net/npm/pdfjs-dist@${version}/cmaps/`,
   cMapPacked: true,
 }
 
@@ -62,7 +63,10 @@ class Reader extends React.Component<Props, State> {
     this.setState({ numPages })
   }
 
-  onError = (error: Error) => this.setState({ error })
+  onError = (error: Error) => {
+    console.error(error)
+    this.setState({ error })
+  }
 
   zoomOut = (event: any) => {
     event.preventDefault()
@@ -81,7 +85,7 @@ class Reader extends React.Component<Props, State> {
   zIn = () => {
     if (this.state.scale <= this.MAX_SCALE - 0.25) {
       this.__zoomEvent = true
-      this.setState(previousState => ({
+      this.setState((previousState) => ({
         scale: previousState.scale + 0.25,
       }))
     }
@@ -91,7 +95,7 @@ class Reader extends React.Component<Props, State> {
     if (this.state.scale >= 0.75) {
       // min scale out is 0.5 and defaults @ 0.75
       this.__zoomEvent = true
-      this.setState(previousState => ({
+      this.setState((previousState) => ({
         scale: previousState.scale - 0.25,
       }))
     }
@@ -135,6 +139,7 @@ class Reader extends React.Component<Props, State> {
       onLoadError={this.onError}
       onRenderError={this.onError}
       onGetTextError={this.onError}
+      onGetAnnotationsError={this.onError}
       width={(document.body.clientWidth * 90) / 100}
       onRenderSuccess={() => {
         this.__zoomEvent = false
@@ -145,8 +150,10 @@ class Reader extends React.Component<Props, State> {
 
   renderPages = () => {
     const pagesRange = Array.from(Array(this.state.numPages).keys())
-    return pagesRange.map(n => (
-      <div style={{ marginBottom: 10 }}>{this.renderPage(n + 1)}</div>
+    return pagesRange.map((n) => (
+      <div key={`page-${n.toString()}`} style={{ marginBottom: 10 }}>
+        {this.renderPage(n + 1)}
+      </div>
     ))
   }
 

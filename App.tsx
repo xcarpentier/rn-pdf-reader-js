@@ -55,7 +55,7 @@ function App() {
       <Text>{'\nPDF type (uri -> base64)'}</Text>
       <Switch
         value={pdfType}
-        onValueChange={value => {
+        onValueChange={(value) => {
           setPdfType(value)
           if (value) {
             setUseGoogleReader(false)
@@ -65,7 +65,7 @@ function App() {
       <Text>{'\nGoogle Reader?'}</Text>
       <Switch
         value={useGoogleReader}
-        onValueChange={value => {
+        onValueChange={(value) => {
           setUseGoogleReader(value)
           if (value) {
             setPdfType(false)

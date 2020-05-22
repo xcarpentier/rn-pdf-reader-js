@@ -51,6 +51,7 @@ export interface Props {
   customStyle?: CustomStyle
   useGoogleReader?: boolean
   withScroll?: boolean
+  withPinchZoom?: boolean
   onLoad?(event: WebViewNavigationEvent): void
   onLoadEnd?(event: WebViewNavigationEvent | WebViewErrorEvent): void
   onError?(event: WebViewErrorEvent | WebViewHttpErrorEvent | string): void
@@ -68,6 +69,7 @@ function viewerHtml(
   base64: string,
   customStyle?: CustomStyle,
   withScroll: boolean = false,
+  withPinchZoom: boolean = false,
 ): string {
   return `
 <!DOCTYPE html>
@@ -75,9 +77,12 @@ function viewerHtml(
   <head>
     <title>PDF reader</title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=${
+      withPinchZoom ? '4.0' : '1.0'
+    }, user-scalable=${withPinchZoom ? 'yes' : 'no'}" />
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/web/pdf_viewer.min.js"></script>
+    <script src="https://wzrd.in/standalone/raf@latest"></script>
     <script
       crossorigin
       src="https://unpkg.com/react@16/umd/react.production.min.js"
@@ -123,13 +128,17 @@ async function writeWebViewReaderFileAsync(
   data: string,
   customStyle?: CustomStyle,
   withScroll?: boolean,
+  withPinchZoom?: boolean,
 ): Promise<void> {
   const { exists, md5 } = await getInfoAsync(bundleJsPath, { md5: true })
   const bundleContainer = require('./bundleContainer')
   if (__DEV__ || !exists || bundleContainer.getBundleMd5() !== md5) {
     await writeAsStringAsync(bundleJsPath, bundleContainer.getBundle())
   }
-  await writeAsStringAsync(htmlPath, viewerHtml(data, customStyle, withScroll))
+  await writeAsStringAsync(
+    htmlPath,
+    viewerHtml(data, customStyle, withScroll, withPinchZoom),
+  )
 }
 
 async function writePDFAsync(base64: string) {
@@ -267,12 +276,17 @@ class PdfReader extends React.Component<Props, State> {
 
   init = async () => {
     try {
-      const { source, customStyle, withScroll } = this.props
+      const { source, customStyle, withScroll, withPinchZoom } = this.props
       const { renderType } = this.state
       switch (renderType!) {
         case 'URL_TO_BASE64': {
           const data = await fetchPdfAsync(source)
-          await writeWebViewReaderFileAsync(data!, customStyle, withScroll)
+          await writeWebViewReaderFileAsync(
+            data!,
+            customStyle,
+            withScroll,
+            withPinchZoom,
+          )
           break
         }
 
@@ -281,6 +295,7 @@ class PdfReader extends React.Component<Props, State> {
             source.base64!,
             customStyle,
             withScroll,
+            withPinchZoom,
           )
           break
         }
@@ -410,7 +425,6 @@ class PdfReader extends React.Component<Props, State> {
       'content:*',
     ]
     const style = [styles.webview, webviewStyle]
-    // html: `<script>alert(navigator.serviceWorker)</script>`,
     const isAndroid = Platform.OS === 'android'
     if (ready) {
       const source: WebViewSource | undefined = this.getWebviewSource()
@@ -434,7 +448,6 @@ class PdfReader extends React.Component<Props, State> {
             allowFileAccess={isAndroid}
             allowFileAccessFromFileURLs={isAndroid}
             allowUniversalAccessFromFileURLs={isAndroid}
-            androidHardwareAccelerationDisabled
             scalesPageToFit={Platform.select({ android: false })}
             mixedContentMode={isAndroid ? 'always' : undefined}
             sharedCookiesEnabled={false}

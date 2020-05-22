@@ -30,6 +30,7 @@ function App() {
   const [pdfType, setPdfType] = React.useState<boolean>(false)
   const [useGoogleReader, setUseGoogleReader] = React.useState<boolean>(false)
   const [withScroll, setWithScroll] = React.useState<boolean>(false)
+  const [withPinchZoom, setWithPinchZoom] = React.useState<boolean>(false)
   if (error) {
     return (
       <View
@@ -74,13 +75,15 @@ function App() {
       />
       <Text>{'\nWith Scroll?'}</Text>
       <Switch value={withScroll} onValueChange={setWithScroll} />
+      <Text>{'\nWith Pinch Zoom?'}</Text>
+      <Switch value={withPinchZoom} onValueChange={setWithPinchZoom} />
       <Modal {...{ visible }}>
         <SafeAreaView style={{ flex: 1 }}>
           <Button title='Hide PDF' onPress={() => setVisible(false)} />
           <PdfReader
             source={pdfType ? { base64 } : { uri }}
             onError={setError}
-            {...{ useGoogleReader, withScroll }}
+            {...{ useGoogleReader, withScroll, withPinchZoom }}
             customStyle={{
               readerContainerZoomContainer: {
                 borderRadius: 30,

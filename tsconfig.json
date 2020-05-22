@@ -13,7 +13,7 @@
     "noImplicitAny": true,
     "experimentalDecorators": true,
     "preserveConstEnums": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "strictNullChecks": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,

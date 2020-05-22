@@ -11,4 +11,6 @@ src
 .prettierrc
 tsconfig.json
 tslint.json
-.github/FUNDING.yml
+.github
+ISSUE_TEMPLATE.md
+LICENSE

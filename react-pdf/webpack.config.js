@@ -37,6 +37,7 @@ module.exports = {
   externals: {
     react: 'React',
     'react-dom': 'ReactDOM',
+    raf: 'raf',
     'pdfjs-dist': 'pdfjsLib',
     'pdfjs-dist/lib/web/pdf_link_service': 'pdfjsViewer',
   },

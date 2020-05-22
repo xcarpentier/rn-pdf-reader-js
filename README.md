@@ -9,7 +9,7 @@
    <br/>
    <a href="https://www.npmjs.com/package/rn-pdf-reader-js"><img alt="npm version" src="https://badge.fury.io/js/rn-pdf-reader-js.svg"/>
    <a href="https://www.npmjs.com/package/rn-pdf-reader-js">
-  <img alt="npm downloads" src="https://img.shields.io/npm/dm/rn-pdf-reader-js.svg"/></a>  
+  <img alt="npm downloads" src="https://img.shields.io/npm/dm/rn-pdf-reader-js.svg"/></a>
 <a href="http://reactnative.gallery/xcarpentier/rn-pdf-reader-js"><img src="https://img.shields.io/badge/reactnative.gallery-%F0%9F%8E%AC-green.svg"/></a>
 </a>
   <a href="#hire-an-expert"><img src="https://img.shields.io/badge/%F0%9F%92%AA-hire%20an%20expert-brightgreen"/></a>
@@ -66,6 +66,7 @@ interface Props {
   noLoader?: boolean
   useGoogleReader?: boolean // If you are not worried about confidentiality
   withScroll?: boolean // Can cause performance issue
+  withPinchZoom?: boolean
   customStyle?: {
     readerContainer?: CSS.Properties
     readerContainerDocument?: CSS.Properties

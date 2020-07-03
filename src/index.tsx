@@ -152,12 +152,12 @@ async function writePDFAsync(base64: string) {
 export async function removeFilesAsync(): Promise<void> {
   const { exists: htmlPathExist } = await getInfoAsync(htmlPath)
   if (htmlPathExist) {
-    await deleteAsync(htmlPath)
+    await deleteAsync(htmlPath, { idempotent: true })
   }
 
   const { exists: pdfPathExist } = await getInfoAsync(pdfPath)
   if (pdfPathExist) {
-    await deleteAsync(pdfPath)
+    await deleteAsync(pdfPath, { idempotent: true })
   }
 }
 

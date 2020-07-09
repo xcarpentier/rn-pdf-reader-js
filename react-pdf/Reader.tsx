@@ -10,9 +10,6 @@ import Up from './components/up'
 import './Reader.less'
 
 const ReactContainer = document.querySelector('#react-container')
-// const PDFJS = pdfjs as any
-
-// PDFJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS.version}/pdf.worker.js`
 const version = '2.1.266'
 const options = {
   cMapUrl: `//cdn.jsdelivr.net/npm/pdfjs-dist@${version}/cmaps/`,

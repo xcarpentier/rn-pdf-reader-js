@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { render } from 'react-dom'
-import Document from 'react-pdf/dist/Document'
-import Page from 'react-pdf/dist/Page'
+import { Document, Page, pdfjs } from 'react-pdf'
 import raf, { cancel } from 'raf'
 import Down from './components/down'
 import Plus from './components/Plus'
@@ -10,7 +9,10 @@ import Up from './components/up'
 import './Reader.less'
 
 const ReactContainer = document.querySelector('#react-container')
-const version = '2.1.266'
+const PDFJS = pdfjs as any
+
+PDFJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS.version}/pdf.worker.js`
+const version = PDFJS.version
 const options = {
   cMapUrl: `//cdn.jsdelivr.net/npm/pdfjs-dist@${version}/cmaps/`,
   cMapPacked: true,

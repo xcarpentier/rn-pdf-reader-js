@@ -78,10 +78,10 @@ function viewerHtml(
     <title>PDF reader</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=${
-      withPinchZoom ? '4.0' : '1.0'
+      withPinchZoom ? '10.0' : '1.0'
     }, user-scalable=${withPinchZoom ? 'yes' : 'no'}" />
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/web/pdf_viewer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.4.456/build/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.4.456/web/pdf_viewer.min.js"></script>
     <script src="https://wzrd.in/standalone/raf@latest"></script>
     <script
       crossorigin
@@ -93,7 +93,7 @@ function viewerHtml(
     ></script>
     <script>
       pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.worker.min.js'
+        'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.4.456/build/pdf.worker.min.js'
     </script>
     <script type="application/javascript">
       try {
@@ -371,7 +371,15 @@ class PdfReader extends React.Component<Props, State> {
 
   componentDidMount() {
     this.setState({ renderType: this.getRenderType() }, () => {
-      console.debug(this.state.renderType)
+      if (__DEV__) {
+        console.debug(
+          '[DEBUG] rn_pdf_reader_js',
+          'state:',
+          JSON.stringify(this.state),
+          'props:',
+          JSON.stringify(this.props),
+        )
+      }
       this.validate()
       this.init()
     })

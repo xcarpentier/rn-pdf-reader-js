@@ -53,7 +53,7 @@ class Reader extends React.Component<Props, State> {
     error: undefined,
   }
 
-  MAX_SCALE = 2
+  MAX_SCALE = 4
   __zoomEvent = false
 
   onDocumentLoadSuccess = ({ numPages }) => {

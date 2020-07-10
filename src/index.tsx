@@ -52,6 +52,7 @@ export interface Props {
   useGoogleReader?: boolean
   withScroll?: boolean
   withPinchZoom?: boolean
+  maximumPinchZoomScale?: number
   onLoad?(event: WebViewNavigationEvent): void
   onLoadEnd?(event: WebViewNavigationEvent | WebViewErrorEvent): void
   onError?(event: WebViewErrorEvent | WebViewHttpErrorEvent | string): void
@@ -70,6 +71,7 @@ function viewerHtml(
   customStyle?: CustomStyle,
   withScroll: boolean = false,
   withPinchZoom: boolean = false,
+  maximumPinchZoomScale: number = 5,
 ): string {
   return `
 <!DOCTYPE html>
@@ -78,7 +80,7 @@ function viewerHtml(
     <title>PDF reader</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=${
-      withPinchZoom ? '4.0' : '1.0'
+      withPinchZoom ? `${maximumPinchZoomScale}.0` : '1.0'
     }, user-scalable=${withPinchZoom ? 'yes' : 'no'}" />
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/web/pdf_viewer.min.js"></script>
@@ -129,6 +131,7 @@ async function writeWebViewReaderFileAsync(
   customStyle?: CustomStyle,
   withScroll?: boolean,
   withPinchZoom?: boolean,
+  maximumPinchZoomScale?: number,
 ): Promise<void> {
   const { exists, md5 } = await getInfoAsync(bundleJsPath, { md5: true })
   const bundleContainer = require('./bundleContainer')
@@ -137,7 +140,13 @@ async function writeWebViewReaderFileAsync(
   }
   await writeAsStringAsync(
     htmlPath,
-    viewerHtml(data, customStyle, withScroll, withPinchZoom),
+    viewerHtml(
+      data,
+      customStyle,
+      withScroll,
+      withPinchZoom,
+      maximumPinchZoomScale,
+    ),
   )
 }
 
@@ -276,7 +285,7 @@ class PdfReader extends React.Component<Props, State> {
 
   init = async () => {
     try {
-      const { source, customStyle, withScroll, withPinchZoom } = this.props
+      const { source, customStyle, withScroll, withPinchZoom,  } = this.props
       const { renderType } = this.state
       switch (renderType!) {
         case 'URL_TO_BASE64': {

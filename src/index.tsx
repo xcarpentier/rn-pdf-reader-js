@@ -84,7 +84,6 @@ function viewerHtml(
     }, user-scalable=${withPinchZoom ? 'yes' : 'no'}" />
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/web/pdf_viewer.min.js"></script>
-    <script src="https://wzrd.in/standalone/raf@latest"></script>
     <script
       crossorigin
       src="https://unpkg.com/react@16/umd/react.production.min.js"
@@ -285,7 +284,13 @@ class PdfReader extends React.Component<Props, State> {
 
   init = async () => {
     try {
-      const { source, customStyle, withScroll, withPinchZoom,  } = this.props
+      const {
+        source,
+        customStyle,
+        withScroll,
+        withPinchZoom,
+        maximumPinchZoomScale,
+      } = this.props
       const { renderType } = this.state
       switch (renderType!) {
         case 'URL_TO_BASE64': {
@@ -295,6 +300,7 @@ class PdfReader extends React.Component<Props, State> {
             customStyle,
             withScroll,
             withPinchZoom,
+            maximumPinchZoomScale,
           )
           break
         }
@@ -305,6 +311,7 @@ class PdfReader extends React.Component<Props, State> {
             customStyle,
             withScroll,
             withPinchZoom,
+            maximumPinchZoomScale,
           )
           break
         }

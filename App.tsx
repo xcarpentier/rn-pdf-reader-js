@@ -20,7 +20,8 @@ const base64 =
   'CjAwMDAwMDAwNzkgMDAwMDAgbiAKMDAwMDAwMDE3MyAwMDAwMCBuIAowMDAwMDAwMzAxIDAw' +
   'MDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9v' +
   'dCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G'
-const uri = 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf'
+// const uri = 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf'
+const uri = 'https://www.dropbox.com/s/r7nfdzj6h2kosnh/bhjbjbj.pdf?dl=0&raw=1'
 
 function App() {
   const [error, setError] = React.useState<

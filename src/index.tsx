@@ -387,7 +387,6 @@ class PdfReader extends React.Component<Props, State> {
 
   componentDidMount() {
     this.setState({ renderType: this.getRenderType() }, () => {
-      console.debug(this.state.renderType)
       this.validate()
       this.init()
     })

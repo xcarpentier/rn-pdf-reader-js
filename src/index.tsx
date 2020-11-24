@@ -82,19 +82,17 @@ function viewerHtml(
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=${
       withPinchZoom ? `${maximumPinchZoomScale}.0` : '1.0'
     }, user-scalable=${withPinchZoom ? 'yes' : 'no'}" />
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/web/pdf_viewer.min.js"></script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react@16/umd/react.production.min.js"
-    ></script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"
-    ></script>
+    <!-- https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.min.js -->
+    <script src="pdf.min.js"></script>
+    <!-- https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/web/pdf_viewer.min.js -->
+    <script src="pdf_viewer.min.js"></script>
+    <!-- https://unpkg.com/react@16/umd/react.production.min.js -->
+    <script src="react.production.min.js"></script>
+    <!-- https://unpkg.com/react-dom@16/umd/react-dom.production.min.js -->
+    <script src="react-dom.production.min.js"></script>
+    <!-- https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.worker.min.js -->
     <script>
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.worker.min.js'
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.js'
     </script>
     <script type="application/javascript">
       try {
@@ -125,6 +123,26 @@ const bundleJsPath = `${cacheDirectory}bundle.js`
 const htmlPath = `${cacheDirectory}index.html`
 const pdfPath = `${cacheDirectory}file.pdf`
 
+function writeWebViewComponentFile(container: any, fileName: string,  callback: any) {
+  writeAsStringAsync(`${cacheDirectory}${fileName}`, container.getBundle()).then(() => {
+    if (typeof callback === 'function') {
+      callback()
+    }
+  })
+}
+
+function writeWebViewComponentFiles() {
+  writeWebViewComponentFile(require('./pdfJsContainer'), 'pdf.min.js', () => {
+    writeWebViewComponentFile(require('./pdfViewerContainer'), 'pdf_viewer.min.js', () => {
+      writeWebViewComponentFile(require('./pdfWorkerContainer'), 'pdf.worker.min.js', () => {
+        writeWebViewComponentFile(require('./reactDomContainer'), 'react-dom.production.min.js', () => {
+          writeWebViewComponentFile(require('./reactContainer'), 'react.production.min.js', null)
+        })
+      })
+    })
+  })
+}
+
 async function writeWebViewReaderFileAsync(
   data: string,
   customStyle?: CustomStyle,
@@ -132,6 +150,7 @@ async function writeWebViewReaderFileAsync(
   withPinchZoom?: boolean,
   maximumPinchZoomScale?: number,
 ): Promise<void> {
+  writeWebViewComponentFiles()
   const { exists, md5 } = await getInfoAsync(bundleJsPath, { md5: true })
   const bundleContainer = require('./bundleContainer')
   if (__DEV__ || !exists || bundleContainer.getBundleMd5() !== md5) {

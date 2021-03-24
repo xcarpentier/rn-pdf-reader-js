@@ -34,12 +34,12 @@
     "url": "git+https://github.com/xcarpentier/rn-pdf-reader-js.git"
   },
   "peerDependencies": {
-    "expo": ">= 33.0.x < 37.0.x",
+    "expo": ">= 33.0.x < 41.0.x",
     "expo-constants": ">= 5.0.0 < 9.x",
     "expo-file-system": ">= 5.0.0 < 9.x",
     "react": "16.x",
     "react-native": "*",
-    "react-native-webview": ">= 7.0.5 < 8.x"
+    "react-native-webview": ">= 7.0.5 < 12.x"
   },
   "dependencies": {
     "buffer": "5.1.0",

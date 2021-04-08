@@ -24,6 +24,7 @@ export type RenderType =
   | 'BASE64_TO_LOCAL_PDF'
   | 'URL_TO_BASE64'
   | 'GOOGLE_READER'
+  | 'GOOGLE_DRIVE_VIEWER';
 
 export interface CustomStyle {
   readerContainer?: CSS.Properties<any>
@@ -50,6 +51,7 @@ export interface Props {
   noLoader?: boolean
   customStyle?: CustomStyle
   useGoogleReader?: boolean
+  useGoogleDriveViewer?: boolean
   withScroll?: boolean
   withPinchZoom?: boolean
   maximumPinchZoomScale?: number
@@ -224,6 +226,8 @@ async function urlToBlob(source: Source): Promise<Blob | undefined> {
 
 const getGoogleReaderUrl = (url: string) =>
   `https://docs.google.com/viewer?url=${url}`
+const getGoogleDriveUrl = (url: string) =>
+  `https://drive.google.com/viewerng/viewer?embedded=true&url=${url}`
 
 const Loader = () => (
   <View
@@ -259,6 +263,7 @@ class PdfReader extends React.Component<Props, State> {
     } else if (
       (renderType === 'DIRECT_URL' ||
         renderType === 'GOOGLE_READER' ||
+        renderType === 'GOOGLE_DRIVE_VIEWER' ||
         renderType === 'URL_TO_BASE64') &&
       (!source.uri ||
         !(
@@ -293,6 +298,10 @@ class PdfReader extends React.Component<Props, State> {
       } = this.props
       const { renderType } = this.state
       switch (renderType!) {
+        case 'GOOGLE_DRIVE_VIEWER': {
+          break;
+        }
+        
         case 'URL_TO_BASE64': {
           const data = await fetchPdfAsync(source)
           await writeWebViewReaderFileAsync(
@@ -335,11 +344,16 @@ class PdfReader extends React.Component<Props, State> {
   getRenderType = () => {
     const {
       useGoogleReader,
+      useGoogleDriveViewer,
       source: { uri, base64 },
     } = this.props
 
     if (useGoogleReader) {
       return 'GOOGLE_READER'
+    }
+
+    if (useGoogleDriveViewer) {
+      return 'GOOGLE_DRIVE_VIEWER';
     }
 
     if (Platform.OS === 'ios') {
@@ -371,6 +385,8 @@ class PdfReader extends React.Component<Props, State> {
     switch (renderType!) {
       case 'GOOGLE_READER':
         return { uri: getGoogleReaderUrl(uri!) }
+      case 'GOOGLE_DRIVE_VIEWER':
+        return { uri: getGoogleDriveUrl(uri) };
       case 'DIRECT_BASE64':
       case 'URL_TO_BASE64':
         return { uri: htmlPath }

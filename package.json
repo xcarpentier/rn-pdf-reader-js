@@ -1,8 +1,8 @@
 {
-  "name": "rn-pdf-reader-js-updated",
+  "name": "rn-pdf-reader-js-improved",
   "version": "1.0.0",
-  "description": "PDF reader for Expo updated to support expo 44, expo-file-system 13 and react 17",
-  "main": "node_modules/expo/AppEntry.js",
+  "description": "PDF reader forked to update dependencies and add improvements",
+  "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "author": "Renan de Mullenheim <renandemull@gmail.com>",
   "license": "MIT",

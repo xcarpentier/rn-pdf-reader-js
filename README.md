@@ -1,4 +1,7 @@
 <h1 align="center">PDF Reader</h1>
+
+<h2 align="center">Project forked from <a href="https://github.com/xcarpentier/rn-pdf-reader-js">xcarpentier rn-pdf-reader-js</a> to support recent dependencies</h2>
+
 <p align="center">Android support 🚀</p>
 
 <p align="center">
@@ -23,7 +26,7 @@
 - 👉**Install expo-file-system** on your own!
 - 👉**Install expo-constants** on your own!
 - Use it into Expo app (from expo client, Standalone app or ExpoKit app).
-- Only React-Native 0.59-0.60+ support, **Expo SDK 33-36+**
+- Only React-Native 0.59-0.60+ support, **Expo SDK 33-44+**
 
 [PRs are welcome...](https://github.com/xcarpentier/rn-pdf-reader-js/pulls)
 
@@ -35,15 +38,15 @@ import { View } from 'react-native'
 import PDFReader from 'rn-pdf-reader-js'
 
 export default class App extends React.Component {
-  render() {
-    return (
-      <PDFReader
-        source={{
-          uri: 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf',
-        }}
-      />
-    )
-  }
+    render() {
+        return (
+            <PDFReader
+                source={{
+                    uri: 'http://gahp.net/wp-content/uploads/2017/09/sample.pdf',
+                }}
+            />
+        )
+    }
 }
 ```
 
@@ -53,33 +56,33 @@ See more detailed example into `App.tsx` file.
 
 ```tsx
 interface Source {
-  uri?: string // can be local or served on the web (ie. start with `https://` or `file://`)
-  base64?: string // should start with `data:application/pdf;base64,`. A base64 encoded pdf file tends to start with `JVBERi0xL` so your complete string should look something like this: `data:application/pdf;base64,JVBERi0xL...`
-  headers?: { [key: string]: string }
+    uri?: string // can be local or served on the web (ie. start with `https://` or `file://`)
+    base64?: string // should start with `data:application/pdf;base64,`. A base64 encoded pdf file tends to start with `JVBERi0xL` so your complete string should look something like this: `data:application/pdf;base64,JVBERi0xL...`
+    headers?: { [key: string]: string }
 }
 
 interface Props {
-  source: Source
-  style?: View['props']['style'] // style props to override default container style
-  webviewStyle?: WebView['props']['style'] // style props to override default WebView style
-  webviewProps?: WebView['props']
-  noLoader?: boolean
-  useGoogleReader?: boolean // If you are not worried about confidentiality
-  withScroll?: boolean // Can cause performance issue
-  withPinchZoom?: boolean
-  customStyle?: {
-    readerContainer?: CSS.Properties
-    readerContainerDocument?: CSS.Properties
-    readerContainerNumbers?: CSS.Properties
-    readerContainerNumbersContent?: CSS.Properties
-    readerContainerZoomContainer?: CSS.Properties
-    readerContainerZoomContainerButton?: CSS.Properties
-    readerContainerNavigate?: CSS.Properties
-    readerContainerNavigateArrow?: CSS.Properties
-  }
-  onLoad?(): void // callback that runs after WebView is loaded
-  onLoadEnd?(): void // callback that runs after WebView is loaded
-  onError?(): void // callback that runs when WebView is on error
+    source: Source
+    style?: View['props']['style'] // style props to override default container style
+    webviewStyle?: WebView['props']['style'] // style props to override default WebView style
+    webviewProps?: WebView['props']
+    noLoader?: boolean
+    useGoogleReader?: boolean // If you are not worried about confidentiality
+    withScroll?: boolean // Can cause performance issue
+    withPinchZoom?: boolean
+    customStyle?: {
+        readerContainer?: CSS.Properties
+        readerContainerDocument?: CSS.Properties
+        readerContainerNumbers?: CSS.Properties
+        readerContainerNumbersContent?: CSS.Properties
+        readerContainerZoomContainer?: CSS.Properties
+        readerContainerZoomContainerButton?: CSS.Properties
+        readerContainerNavigate?: CSS.Properties
+        readerContainerNavigateArrow?: CSS.Properties
+    }
+    onLoad?(): void // callback that runs after WebView is loaded
+    onLoadEnd?(): void // callback that runs after WebView is loaded
+    onError?(): void // callback that runs when WebView is on error
 }
 ```
 

@@ -301,7 +301,7 @@ class PdfReader extends React.Component<Props, State> {
         case 'GOOGLE_DRIVE_VIEWER': {
           break;
         }
-        
+
         case 'URL_TO_BASE64': {
           const data = await fetchPdfAsync(source)
           await writeWebViewReaderFileAsync(
@@ -335,9 +335,9 @@ class PdfReader extends React.Component<Props, State> {
       }
 
       this.setState({ ready: true })
-    } catch (error) {
-      alert(`Sorry, an error occurred. ${error.message}`)
-      console.error(error)
+    } catch (e: any) {
+      alert(`Sorry, an error occurred. ${e.message}`)
+      console.error(e)
     }
   }
 
@@ -429,9 +429,9 @@ class PdfReader extends React.Component<Props, State> {
     ) {
       try {
         removeFilesAsync()
-      } catch (error) {
-        alert(`Error on removing file. ${error.message}`)
-        console.error(error)
+      } catch (e: any) {
+        alert(`Error on removing file. ${e.message}`)
+        console.error(e)
       }
     }
   }

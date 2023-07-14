@@ -81,8 +81,7 @@ function viewerHtml(
   <head>
     <title>PDF reader</title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=${
-      withPinchZoom ? `${maximumPinchZoomScale}.0` : '1.0'
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=${withPinchZoom ? `${maximumPinchZoomScale}.0` : '1.0'
     }, user-scalable=${withPinchZoom ? 'yes' : 'no'}" />
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/web/pdf_viewer.min.js"></script>
@@ -101,8 +100,8 @@ function viewerHtml(
     <script type="application/javascript">
       try {
         window.CUSTOM_STYLE = JSON.parse('${JSON.stringify(
-          customStyle ?? {},
-        )}');
+      customStyle ?? {},
+    )}');
       } catch (error) {
         window.CUSTOM_STYLE = {}
       }
@@ -301,7 +300,7 @@ class PdfReader extends React.Component<Props, State> {
         case 'GOOGLE_DRIVE_VIEWER': {
           break;
         }
-        
+
         case 'URL_TO_BASE64': {
           const data = await fetchPdfAsync(source)
           await writeWebViewReaderFileAsync(
@@ -335,7 +334,7 @@ class PdfReader extends React.Component<Props, State> {
       }
 
       this.setState({ ready: true })
-    } catch (error) {
+    } catch (error : any ) {
       alert(`Sorry, an error occurred. ${error.message}`)
       console.error(error)
     }
@@ -386,7 +385,7 @@ class PdfReader extends React.Component<Props, State> {
       case 'GOOGLE_READER':
         return { uri: getGoogleReaderUrl(uri!) }
       case 'GOOGLE_DRIVE_VIEWER':
-        return { uri: getGoogleDriveUrl(uri) };
+        return { uri: getGoogleDriveUrl(uri!) };
       case 'DIRECT_BASE64':
       case 'URL_TO_BASE64':
         return { uri: htmlPath }
@@ -429,7 +428,7 @@ class PdfReader extends React.Component<Props, State> {
     ) {
       try {
         removeFilesAsync()
-      } catch (error) {
+      } catch (error: any ) {
         alert(`Error on removing file. ${error.message}`)
         console.error(error)
       }

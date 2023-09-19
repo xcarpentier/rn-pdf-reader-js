@@ -1,22 +1,23 @@
 {
   "name": "rn-pdf-reader-js",
-  "version": "4.1.1",
+  "version": "5.0.0",
   "description": "PDF reader for Expo",
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "author": "Xavier Carpentier <xcapetir@gmail.com> (https://xaviercarpentier.com/)",
   "license": "MIT",
   "scripts": {
-    "start": "yarn config:dev && expo start -c",
+    "start": "npm run config:dev && expo start -c",
     "tsc": "node_modules/.bin/tsc --noEmit",
+    "build-react-pdf": "cd ./react-pdf && npm i && npm run build && cd ..",
     "bundle": "./scripts/gen_bundle_string.js",
-    "build": "yarn bundle && rm -rf lib/ && node_modules/.bin/tsc",
+    "build": "npm run build-react-pdf && npm run bundle && rm -rf lib/ && node_modules/.bin/tsc",
     "config:dev": "json -I -f package.json -e 'this.main=\"node_modules/expo/AppEntry.js\"'",
     "config:npm": "json -I -f package.json -e 'this.main=\"lib/index.js\"'",
     "lint": "tslint --project .",
-    "verify": "yarn lint && yarn tsc && yarn build",
-    "prepublishOnly": "yarn verify && yarn config:npm",
-    "postpublish": "yarn config:dev",
+    "verify": "npm run lint && npm run tsc && npm run build",
+    "prepublishOnly": "npm run verify && npm run config:npm",
+    "postpublish": "npm run config:dev",
     "cleaning": "rm -rf node_modules && rm -f yarn.lock && yarn cache clean && yarn install && watchman watch-del-all && rm -fr $TMPDIR/react-*"
   },
   "keywords": [
@@ -31,15 +32,16 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xcarpentier/rn-pdf-reader-js.git"
+    "url": "git+https://github.com/mediazard/rn-pdf-reader-js.git"
   },
   "peerDependencies": {
-    "expo": ">= 33.0.x < 41.0.x",
-    "expo-constants": ">= 5.0.0 < 9.x",
-    "expo-file-system": ">= 5.0.0 < 9.x",
-    "react": "16.x",
+    "expo": ">= 33.0.x < 50.0.x",
+    "expo-constants": ">= 5.0.0 < 15.x",
+    "expo-file-system": ">= 5.0.0 < 15.x",
+    "react": "18.x",
+    "react-dom": "16.12.0",
     "react-native": "*",
-    "react-native-webview": ">= 7.0.5 < 12.x"
+    "react-native-webview": ">= 7.0.5 < 13.x"
   },
   "dependencies": {
     "buffer": "5.1.0",

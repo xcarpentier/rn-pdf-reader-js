@@ -379,7 +379,7 @@ class PdfReader extends React.Component<Props, State> {
   getWebviewSource = (): WebViewSource | undefined => {
     const { renderType } = this.state
     const {
-      source: { uri, headers },
+      source: { uri = '', headers },
       onError,
     } = this.props
     switch (renderType!) {
@@ -475,7 +475,7 @@ class PdfReader extends React.Component<Props, State> {
               onError,
               onHttpError: onError,
               style,
-              source: renderedOnce || !isAndroid ? source : undefined,
+              source: renderedOnce || !isAndroid ? source : { html: ''},
             }}
             allowFileAccess={isAndroid}
             allowFileAccessFromFileURLs={isAndroid}

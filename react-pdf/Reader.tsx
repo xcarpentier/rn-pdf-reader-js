@@ -158,92 +158,94 @@ class Reader extends React.Component<Props, State> {
     const { numPages, currentPage, error } = this.state
     const { customStyle } = this.props
     if (error) {
-      return <p>{error.message ? error.message : 'Sorry an error occurred!'}</p>
+      return <><p>{error.message ? error.message : 'Sorry an error occurred!'}</p></>
     }
     return (
-      <div className='Reader'>
-        <div className='Reader__container' style={customStyle?.readerContainer}>
-          <div
-            className='Reader__container__document'
-            style={customStyle?.readerContainerDocument}
-          >
-            <Document
-              loading={' '}
-              onLoadSuccess={this.onDocumentLoadSuccess}
-              onLoadError={this.onError}
-              onSourceError={this.onError}
-              {...{ options, file }}
+      <>
+        <div className='Reader'>
+          <div className='Reader__container' style={customStyle?.readerContainer}>
+            <div
+              className='Reader__container__document'
+              style={customStyle?.readerContainerDocument}
             >
-              {withScroll ? this.renderPages() : this.renderPage(currentPage)}
-            </Document>
-          </div>
+              <Document
+                loading={' '}
+                onLoadSuccess={this.onDocumentLoadSuccess}
+                onLoadError={this.onError}
+                onSourceError={this.onError}
+                {...{ options, file }}
+              >
+                {withScroll ? this.renderPages() : this.renderPage(currentPage)}
+              </Document>
+            </div>
 
-          {numPages && !withScroll && (
-            <div
-              className='Reader__container__numbers'
-              style={customStyle?.readerContainerNumbers}
-            >
+            {numPages && !withScroll && (
               <div
-                className='Reader__container__numbers__content'
-                style={customStyle?.readerContainerNumbersContent}
+                className='Reader__container__numbers'
+                style={customStyle?.readerContainerNumbers}
               >
-                {currentPage} / {numPages}
+                <div
+                  className='Reader__container__numbers__content'
+                  style={customStyle?.readerContainerNumbersContent}
+                >
+                  {currentPage} / {numPages}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div
-            className='Reader__container__zoom_container'
-            style={customStyle?.readerContainerZoomContainer}
-          >
             <div
-              className='Reader__container__zoom_container__button'
-              style={customStyle?.readerContainerZoomContainerButton}
-              onClick={this.zoomIn}
+              className='Reader__container__zoom_container'
+              style={customStyle?.readerContainerZoomContainer}
             >
-              <Plus />
+              <div
+                className='Reader__container__zoom_container__button'
+                style={customStyle?.readerContainerZoomContainerButton}
+                onClick={this.zoomIn}
+              >
+                <Plus />
+              </div>
+              <div
+                className='Reader__container__zoom_container__button'
+                style={customStyle?.readerContainerZoomContainerButton}
+                onClick={this.zoomOut}
+              >
+                <Minus />
+              </div>
             </div>
-            <div
-              className='Reader__container__zoom_container__button'
-              style={customStyle?.readerContainerZoomContainerButton}
-              onClick={this.zoomOut}
-            >
-              <Minus />
-            </div>
+            {numPages > 1 && !withScroll && (
+              <div
+                className={'Reader__container__navigate'}
+                style={customStyle?.readerContainerNavigate}
+              >
+                <div
+                  className='Reader__container__navigate__arrow'
+                  style={{
+                    ...(currentPage === 1
+                      ? { color: 'rgba(255,255,255,0.4)' }
+                      : {}),
+                    ...customStyle?.readerContainerNavigateArrow,
+                  }}
+                  onClick={this.goUp}
+                >
+                  <Up />
+                </div>
+                <div
+                  className='Reader__container__navigate__arrow'
+                  style={{
+                    ...(currentPage === numPages
+                      ? { color: 'rgba(255,255,255,0.4)' }
+                      : {}),
+                    ...customStyle?.readerContainerNavigateArrow,
+                  }}
+                  onClick={this.goDown}
+                >
+                  <Down />
+                </div>
+              </div>
+            )}
           </div>
-          {numPages > 1 && !withScroll && (
-            <div
-              className={'Reader__container__navigate'}
-              style={customStyle?.readerContainerNavigate}
-            >
-              <div
-                className='Reader__container__navigate__arrow'
-                style={{
-                  ...(currentPage === 1
-                    ? { color: 'rgba(255,255,255,0.4)' }
-                    : {}),
-                  ...customStyle?.readerContainerNavigateArrow,
-                }}
-                onClick={this.goUp}
-              >
-                <Up />
-              </div>
-              <div
-                className='Reader__container__navigate__arrow'
-                style={{
-                  ...(currentPage === numPages
-                    ? { color: 'rgba(255,255,255,0.4)' }
-                    : {}),
-                  ...customStyle?.readerContainerNavigateArrow,
-                }}
-                onClick={this.goDown}
-              >
-                <Down />
-              </div>
-            </div>
-          )}
         </div>
-      </div>
+      </>
     )
   }
 }
@@ -255,4 +257,5 @@ const customStyle = window.CUSTOM_STYLE
 // @ts-ignore
 const withScroll = window.WITH_SCROLL
 
+// @ts-ignore
 render(<Reader {...{ file, customStyle, withScroll }} />, ReactContainer)

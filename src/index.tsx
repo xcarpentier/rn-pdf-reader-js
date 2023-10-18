@@ -10,13 +10,8 @@ import {
   WebViewHttpErrorEvent,
 } from 'react-native-webview/lib/WebViewTypes'
 
-const {
-  cacheDirectory,
-  writeAsStringAsync,
-  deleteAsync,
-  getInfoAsync,
-  EncodingType,
-} = FileSystem
+const { cacheDirectory, writeAsStringAsync, deleteAsync, getInfoAsync } =
+  FileSystem
 
 export type RenderType =
   | 'DIRECT_URL'
@@ -24,7 +19,7 @@ export type RenderType =
   | 'BASE64_TO_LOCAL_PDF'
   | 'URL_TO_BASE64'
   | 'GOOGLE_READER'
-  | 'GOOGLE_DRIVE_VIEWER';
+  | 'GOOGLE_DRIVE_VIEWER'
 
 export interface CustomStyle {
   readerContainer?: CSS.Properties<any>
@@ -81,7 +76,8 @@ function viewerHtml(
   <head>
     <title>PDF reader</title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=${withPinchZoom ? `${maximumPinchZoomScale}.0` : '1.0'
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=${
+      withPinchZoom ? `${maximumPinchZoomScale}.0` : '1.0'
     }, user-scalable=${withPinchZoom ? 'yes' : 'no'}" />
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/web/pdf_viewer.min.js"></script>
@@ -100,8 +96,8 @@ function viewerHtml(
     <script type="application/javascript">
       try {
         window.CUSTOM_STYLE = JSON.parse('${JSON.stringify(
-      customStyle ?? {},
-    )}');
+          customStyle ?? {},
+        )}');
       } catch (error) {
         window.CUSTOM_STYLE = {}
       }
@@ -133,7 +129,9 @@ async function writeWebViewReaderFileAsync(
   withPinchZoom?: boolean,
   maximumPinchZoomScale?: number,
 ): Promise<void> {
-  const { exists, md5 } = await getInfoAsync(bundleJsPath, { md5: true })
+  const { exists, md5 } = (await getInfoAsync(bundleJsPath, {
+    md5: true,
+  })) as any
   const bundleContainer = require('./bundleContainer')
   if (__DEV__ || !exists || bundleContainer.getBundleMd5() !== md5) {
     await writeAsStringAsync(bundleJsPath, bundleContainer.getBundle())
@@ -154,7 +152,7 @@ async function writePDFAsync(base64: string) {
   await writeAsStringAsync(
     pdfPath,
     base64.replace('data:application/pdf;base64,', ''),
-    { encoding: EncodingType.Base64 },
+    { encoding: 'base64' },
   )
 }
 
@@ -298,7 +296,7 @@ class PdfReader extends React.Component<Props, State> {
       const { renderType } = this.state
       switch (renderType!) {
         case 'GOOGLE_DRIVE_VIEWER': {
-          break;
+          break
         }
 
         case 'URL_TO_BASE64': {
@@ -334,7 +332,7 @@ class PdfReader extends React.Component<Props, State> {
       }
 
       this.setState({ ready: true })
-    } catch (error : any ) {
+    } catch (error: any) {
       alert(`Sorry, an error occurred. ${error.message}`)
       console.error(error)
     }
@@ -352,7 +350,7 @@ class PdfReader extends React.Component<Props, State> {
     }
 
     if (useGoogleDriveViewer) {
-      return 'GOOGLE_DRIVE_VIEWER';
+      return 'GOOGLE_DRIVE_VIEWER'
     }
 
     if (Platform.OS === 'ios') {
@@ -385,7 +383,7 @@ class PdfReader extends React.Component<Props, State> {
       case 'GOOGLE_READER':
         return { uri: getGoogleReaderUrl(uri!) }
       case 'GOOGLE_DRIVE_VIEWER':
-        return { uri: getGoogleDriveUrl(uri!) };
+        return { uri: getGoogleDriveUrl(uri!) }
       case 'DIRECT_BASE64':
       case 'URL_TO_BASE64':
         return { uri: htmlPath }
@@ -428,7 +426,7 @@ class PdfReader extends React.Component<Props, State> {
     ) {
       try {
         removeFilesAsync()
-      } catch (error: any ) {
+      } catch (error: any) {
         alert(`Error on removing file. ${error.message}`)
         console.error(error)
       }
@@ -436,7 +434,7 @@ class PdfReader extends React.Component<Props, State> {
   }
 
   render() {
-    const { ready, renderedOnce } = this.state
+    const { ready } = this.state
 
     const {
       style: containerStyle,
@@ -461,10 +459,10 @@ class PdfReader extends React.Component<Props, State> {
       const source: WebViewSource | undefined = this.getWebviewSource()
       return (
         <View style={[styles.container, containerStyle]}>
-          <WebView
+          <WebView<any>
             {...{
               originWhitelist,
-              onLoad: (event) => {
+              onLoad: (event: any) => {
                 this.setState({ renderedOnce: true })
                 if (onLoad) {
                   onLoad(event)
@@ -474,7 +472,7 @@ class PdfReader extends React.Component<Props, State> {
               onError,
               onHttpError: onError,
               style,
-              source: renderedOnce || !isAndroid ? source : undefined,
+              source: source || { uri: null },
             }}
             allowFileAccess={isAndroid}
             allowFileAccessFromFileURLs={isAndroid}

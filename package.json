@@ -1,16 +1,16 @@
 {
-  "name": "rn-pdf-reader-js",
-  "version": "4.1.1",
-  "description": "PDF reader for Expo",
-  "main": "node_modules/expo/AppEntry.js",
+  "name": "@valli_/rn-pdf-reader-js",
+  "version": "1.0.9",
+  "description": "Fork From PDF reader for Expo - Xavier Carpentier <xcapetir@gmail.com> (https://xaviercarpentier.com/)",
+  "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "author": "Xavier Carpentier <xcapetir@gmail.com> (https://xaviercarpentier.com/)",
+  "author": "Tomas Valli",
   "license": "MIT",
   "scripts": {
-    "start": "yarn config:dev && expo start -c",
+    "start": "npx expo start",
     "tsc": "node_modules/.bin/tsc --noEmit",
     "bundle": "./scripts/gen_bundle_string.js",
-    "build": "yarn bundle && rm -rf lib/ && node_modules/.bin/tsc",
+    "build": "yarn bundle && node_modules/.bin/tsc",
     "config:dev": "json -I -f package.json -e 'this.main=\"node_modules/expo/AppEntry.js\"'",
     "config:npm": "json -I -f package.json -e 'this.main=\"lib/index.js\"'",
     "lint": "tslint --project .",
@@ -29,39 +29,28 @@
     "react-pdf",
     "expo"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/xcarpentier/rn-pdf-reader-js.git"
-  },
-  "peerDependencies": {
-    "expo": ">= 33.0.x < 41.0.x",
-    "expo-constants": ">= 5.0.0 < 9.x",
-    "expo-file-system": ">= 5.0.0 < 9.x",
-    "react": "16.x",
-    "react-native": "*",
-    "react-native-webview": ">= 7.0.5 < 12.x"
-  },
   "dependencies": {
-    "buffer": "5.1.0",
-    "csstype": "2.6.8",
-    "js-base64": "2.4.5"
+    "buffer": "^6.0.3",
+    "csstype": "^3.1.1",
+    "js-base64": "^3.7.2"
   },
   "devDependencies": {
-    "@types/js-base64": "2.3.1",
-    "@types/react": "16.9.17",
-    "@types/react-dom": "16.9.4",
-    "@types/react-native": "0.60.28",
-    "babel-preset-expo": "^8.0.0",
-    "crypto": "1.0.1",
-    "expo": "^36.0.2",
-    "expo-constants": "~8.0.0",
-    "expo-file-system": "~8.0.0",
-    "json": "^9.0.6",
-    "react": "16.9.0",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.1.tar.gz",
-    "react-native-webview": "7.4.3",
-    "tslint": "^5.20.1",
+    "@types/js-base64": "^3.3.1",
+    "@types/react": "~18.2.14",
+    "@types/react-dom": "~18.0.10",
+    "@types/react-native": "^0.72.2",
+    "babel-preset-expo": "^9.5.0",
+    "crypto": "^1.0.1",
+    "expo": "^49.0.0",
+    "expo-constants": "~14.4.2",
+    "expo-file-system": "~15.4.4",
+    "json": "^11.0.0",
+    "react": "18.2.0",
+    "react-native": "0.72.5",
+    "react-native-webview": "13.2.2",
+    "tslint": "^6.1.3",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "3.7.4"
-  }
+    "typescript": "^5.1.3"
+  },
+  "repository": "git@github.com:Valli-/rn-pdf-reader-js.git"
 }

@@ -475,7 +475,7 @@ class PdfReader extends React.Component<Props, State> {
               onError,
               onHttpError: onError,
               style,
-              source: renderedOnce || !isAndroid ? source : undefined,
+              source: renderedOnce || !isAndroid ? source : {uri: undefined},
             }}
             allowFileAccess={isAndroid}
             allowFileAccessFromFileURLs={isAndroid}
